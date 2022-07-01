@@ -56,7 +56,7 @@ func authgitlab() {
 	}
 
 	config := cfg.Get()
-	config.GitlabToken = token
+	config.GitLabToken = token
 	cfg.Save(config)
 
 	color.Green("Saved.")

@@ -13,7 +13,7 @@ import (
 
 type Config struct {
 	GitHubToken string `yaml:"github_token"`
-	GitlabToken string `yaml:"gitlab_token"`
+	GitLabToken string `yaml:"gitlab_token"`
 }
 
 // Read config file and return config object

@@ -69,7 +69,7 @@ func Open(repoPath string, print bool) {
 
 	switch gitURL.Host {
 	case "gitlab.com":
-		openGitlab(branch, projectPath, print)
+		openGitLab(branch, projectPath, print)
 	case "github.com":
 		openGitHub(branch, projectPath, print)
 	default:
@@ -78,11 +78,11 @@ func Open(repoPath string, print bool) {
 	}
 }
 
-func openGitlab(branch string, projectPath string, print bool) {
-	gitlabToken := cfg.Get().GitlabToken
+func openGitLab(branch string, projectPath string, print bool) {
+	gitlabToken := cfg.Get().GitLabToken
 
 	if gitlabToken == "" {
-		color.Red("Gitlab token is not set. Run `pro auth gitlab` to set it.")
+		color.Red("GitLab token is not set. Run `pro auth gitlab` to set it.")
 		os.Exit(1)
 	}
 
