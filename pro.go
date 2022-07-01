@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"wowu/pro/commands"
 
 	"github.com/urfave/cli/v2"
 )
@@ -41,12 +42,7 @@ func main() {
 						os.Exit(1)
 					}
 
-					if provider == "github" {
-						fmt.Println("Github provider is not supported yet")
-						os.Exit(0)
-					}
-
-					auth(provider)
+					commands.Auth(provider)
 
 					return nil
 				},
@@ -56,13 +52,13 @@ func main() {
 				Usage: "Open PR page in browser (default action)",
 				Flags: openCommandFlags,
 				Action: func(c *cli.Context) error {
-					open(".", c.Bool("print"))
+					commands.Open(".", c.Bool("print"))
 					return nil
 				},
 			},
 		},
 		Action: func(c *cli.Context) error {
-			open(".", c.Bool("print"))
+			commands.Open(".", c.Bool("print"))
 
 			return nil
 		},
