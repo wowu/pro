@@ -7,8 +7,8 @@ import (
 	"runtime"
 	"strings"
 	"wowu/pro/cfg"
-	"wowu/pro/github"
-	"wowu/pro/gitlab"
+	"wowu/pro/providers/github"
+	"wowu/pro/providers/gitlab"
 
 	"github.com/fatih/color"
 	"github.com/go-git/go-git/v5"
@@ -159,7 +159,7 @@ func openBrowser(url string) {
 	}
 
 	if err != nil {
-		fmt.Println("Error opening browser:", err)
+		fmt.Printf("Unable to open browser: %s\n", err)
 		os.Exit(1)
 	}
 }

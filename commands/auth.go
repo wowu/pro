@@ -6,8 +6,8 @@ import (
 	"strings"
 	"syscall"
 	"wowu/pro/cfg"
-	"wowu/pro/github"
-	"wowu/pro/gitlab"
+	"wowu/pro/providers/github"
+	"wowu/pro/providers/gitlab"
 
 	"github.com/fatih/color"
 	"golang.org/x/term"
@@ -27,7 +27,7 @@ func Auth(provider string) {
 
 func authgitlab() {
 	fmt.Println("Generate your token at https://gitlab.com/-/profile/personal_access_tokens?name=PR+opener&scopes=api")
-	fmt.Println("The only required scope is 'api'")
+	fmt.Println("The only required scope is 'read_api'")
 
 	// Ask for token
 	fmt.Print("Token: ")

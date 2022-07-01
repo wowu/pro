@@ -12,7 +12,7 @@ var openCommandFlags = []cli.Flag{
 	&cli.BoolFlag{
 		Name:    "print",
 		Aliases: []string{"p"},
-		Usage:   "print the PR URL instead of opening in browser",
+		Usage:   "print URL instead of opening in browser",
 	},
 }
 
@@ -21,7 +21,7 @@ func main() {
 	// https://github.com/urfave/cli/blob/main/docs/v2/manual.md#full-api-example
 	app := &cli.App{
 		Name:  "pro",
-		Usage: "Pull Request opener",
+		Usage: "Pull Request Opener",
 		Flags: openCommandFlags,
 		Commands: []*cli.Command{
 			{
