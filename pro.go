@@ -7,9 +7,12 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-type Config struct {
-	GitHubToken string `yaml:"github_token"`
-	GitlabToken string `yaml:"gitlab_token"`
+var openCommandFlags = []cli.Flag{
+	&cli.BoolFlag{
+		Name:    "print",
+		Aliases: []string{"p"},
+		Usage:   "print the PR URL instead of opening in browser",
+	},
 }
 
 func main() {
@@ -18,18 +21,12 @@ func main() {
 	app := &cli.App{
 		Name:  "pro",
 		Usage: "Pull Request opener",
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:    "print",
-				Aliases: []string{"p"},
-				Usage:   "print the PR URL instead of opening in browser",
-			},
-		},
+		Flags: openCommandFlags,
 		Commands: []*cli.Command{
 			{
 				Name:      "auth",
 				ArgsUsage: "[gitlab|github]",
-				Usage:     "Login to GitLab or GitHub",
+				Usage:     "Authorize GitLab or GitHub",
 				UsageText: fmt.Sprintf("pro auth gitlab\npro login github"),
 				Action: func(c *cli.Context) error {
 					if c.NArg() != 1 {
@@ -51,6 +48,15 @@ func main() {
 
 					auth(provider)
 
+					return nil
+				},
+			},
+			{
+				Name:  "open",
+				Usage: "Open PR page in browser (default action)",
+				Flags: openCommandFlags,
+				Action: func(c *cli.Context) error {
+					open(".", c.Bool("print"))
 					return nil
 				},
 			},

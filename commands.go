@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"strings"
 	"syscall"
+	"wowu/pro/cfg"
 	"wowu/pro/gitlab"
 
 	"github.com/fatih/color"
@@ -24,10 +25,7 @@ func auth(provider string) {
 	fmt.Print("Token: ")
 	byteToken, err := term.ReadPassword(int(syscall.Stdin))
 	fmt.Println()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	handleError(err)
 
 	token := strings.TrimSpace(string(byteToken))
 
@@ -49,21 +47,19 @@ func auth(provider string) {
 		}
 	}
 
+	config := cfg.Get()
+	config.GitlabToken = token
+	cfg.Save(config)
+
 	color.Green("Saved.")
 }
 
 func open(repoPath string, print bool) {
 	r, err := git.PlainOpen(repoPath)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	handleError(err)
 
 	remotes, err := r.Remotes()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	handleError(err)
 	if len(remotes) == 0 {
 		fmt.Println("No remotes found")
 		os.Exit(0)
@@ -71,17 +67,11 @@ func open(repoPath string, print bool) {
 
 	// check if there is a remote named origin
 	origin, err := r.Remote("origin")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	handleError(err)
 
 	// get current head
 	head, err := r.Head()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	handleError(err)
 
 	if !head.Name().IsBranch() {
 		fmt.Println("Not on a branch")
@@ -95,10 +85,7 @@ func open(repoPath string, print bool) {
 	originURL := origin.Config().URLs[0]
 
 	gitURL, err := giturls.Parse(originURL)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	handleError(err)
 
 	if branch == "master" || branch == "main" || branch == "trunk" {
 		fmt.Println("Looks like you are on the main branch. Opening home page.")
@@ -144,11 +131,15 @@ func open(repoPath string, print bool) {
 		path = path[:len(path)-4]
 	}
 
-	mergeRequests, err := gitlab.MergeRequests(path, os.Getenv("GITLAB_TOKEN"))
-	if err != nil {
-		fmt.Println(err)
+	gitlabToken := cfg.Get().GitlabToken
+
+	if gitlabToken == "" {
+		color.Red("Gitlab token is not set. Run `pro auth gitlab` to set it.")
 		os.Exit(1)
 	}
+
+	mergeRequests, err := gitlab.MergeRequests(path, gitlabToken)
+	handleError(err)
 
 	// find merge request for current branch
 	currentMergeRequestIndex := slices.IndexFunc(mergeRequests, func(mr gitlab.MergeRequestResponse) bool {
@@ -158,7 +149,7 @@ func open(repoPath string, print bool) {
 	if currentMergeRequestIndex == -1 {
 		fmt.Println("No open merge request found for current branch")
 
-		fmt.Printf("Create pull request at https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s", path, branch)
+		fmt.Printf("Create pull request at https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s\n", path, branch)
 
 		os.Exit(0)
 	}
@@ -191,6 +182,14 @@ func openBrowser(url string) {
 
 	if err != nil {
 		fmt.Println("Error opening browser:", err)
+		os.Exit(1)
+	}
+}
+
+// Print error and exit
+func handleError(err error) {
+	if err != nil {
+		fmt.Println(err)
 		os.Exit(1)
 	}
 }
