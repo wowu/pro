@@ -56,9 +56,9 @@ func Open(repoPath string, print bool) {
 		homeUrl = strings.TrimSuffix(homeUrl, ".git")
 
 		if print {
-			fmt.Println(homeUrl)
+			color.Blue(homeUrl)
 		} else {
-			fmt.Println(homeUrl)
+			color.Blue(homeUrl)
 			openBrowser(homeUrl)
 		}
 
@@ -104,9 +104,9 @@ func openGitLab(branch string, projectPath string, print bool) {
 	url := currentMergeRequest.WebUrl
 
 	if print {
-		fmt.Println(url)
+		color.Blue(url)
 	} else {
-		fmt.Println("Opening " + url)
+		fmt.Println("Opening " + color.BlueString(url))
 		openBrowser(url)
 	}
 }
@@ -137,9 +137,9 @@ func openGitHub(branch string, projectPath string, print bool) {
 	url := currentPullRequest.HtmlURL
 
 	if print {
-		fmt.Println(url)
+		color.Blue(url)
 	} else {
-		fmt.Println("Opening " + url)
+		fmt.Println("Opening " + color.BlueString(url))
 		openBrowser(url)
 	}
 }
