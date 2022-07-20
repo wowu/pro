@@ -1,6 +1,12 @@
 release:
   name_template: "pro v{{.Version}}"
 
+archives:
+  - format: binary
+    format_overrides:
+      - goos: windows
+        format: zip
+
 before:
   hooks:
     - go mod tidy
@@ -50,9 +56,9 @@ publishers:
 changelog:
   filters:
     exclude:
-      - '^docs:'
-      - '^ci:'
-      - '^chore:'
-      - '^refactor:'
-      - '^test:'
-      - '^build:'
+      - "^docs:"
+      - "^ci:"
+      - "^chore:"
+      - "^refactor:"
+      - "^test:"
+      - "^build:"
