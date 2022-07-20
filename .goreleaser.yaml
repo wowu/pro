@@ -1,11 +1,16 @@
 release:
   name_template: "pro v{{.Version}}"
 
+# https://goreleaser.com/customization/archive/
 archives:
   - format: binary
+    name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
     format_overrides:
       - goos: windows
         format: zip
+
+checksum:
+  name_template: "{{ .ProjectName }}-checksums.txt"
 
 before:
   hooks:
@@ -17,7 +22,7 @@ builds:
     goarch: [386, amd64]
   - id: linux
     goos: [linux]
-    goarch: [386, amd64, arm64]
+    goarch: [amd64, arm64]
   - id: darwin
     goos: [darwin]
     goarch: [amd64, arm64]
@@ -32,6 +37,7 @@ brews:
 
 nfpms:
   - id: packages
+    file_name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
     license: MIT
     homepage: https://github.com/wowu/pro
     description: A single command to quickly open current PR in browser.
