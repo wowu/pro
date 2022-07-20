@@ -121,7 +121,7 @@ func openGitLab(branch string, projectPath string, print bool) {
 	if err != nil {
 		if errors.Is(err, gitlab.ErrNotFound) {
 			fmt.Println("No open merge request found for current branch")
-			fmt.Printf("Create pull request at https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s\n", projectPath, branch)
+			fmt.Println("Create pull request at", color.BlueString("https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s", projectPath, branch))
 			os.Exit(0)
 		} else {
 			color.Red("Unable to get merge requests: %s", err.Error())
@@ -152,7 +152,7 @@ func openGitHub(branch string, projectPath string, print bool) {
 	if err != nil {
 		if errors.Is(err, github.ErrNotFound) {
 			fmt.Println("No open pull request found for current branch")
-			fmt.Printf("Create pull request at https://github.com/%s/pull/new/%s\n", projectPath, branch)
+			fmt.Println("Create pull request at", color.BlueString("https://github.com/%s/pull/new/%s", projectPath, branch))
 			os.Exit(0)
 		} else {
 			color.Red("Unable to get pull requests: %s", err.Error())
