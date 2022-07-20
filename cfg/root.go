@@ -23,20 +23,23 @@ func Get() Config {
 	if err != nil {
 		if os.IsNotExist(err) {
 			return Config{}
+		} else {
+			fmt.Println("Unable to stat config file:", err)
+			os.Exit(1)
 		}
 	}
 
 	data, err := ioutil.ReadFile(configfile())
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(0)
+		fmt.Println("Unable to read config file:", err)
+		os.Exit(1)
 	}
 
 	var config Config
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(0)
+		fmt.Println("Unable to unmarshal config file:", err)
+		os.Exit(1)
 	}
 
 	return config
@@ -46,19 +49,28 @@ func Save(config Config) {
 	// Make sure the config directory exists
 	err := os.MkdirAll(path.Dir(configfile()), 0750)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Unable to create config directory:", err)
 		os.Exit(1)
 	}
 
 	data, err := yaml.Marshal(config)
+	if err != nil {
+		fmt.Println("Unable to marshal config:", err)
+		os.Exit(1)
+	}
 
-	ioutil.WriteFile(configfile(), data, 0600)
+	err = ioutil.WriteFile(configfile(), data, 0600)
+	if err != nil {
+		fmt.Println("Unable to write config file:", err)
+		os.Exit(1)
+	}
 }
 
 func configdir() string {
 	home, err := homedir.Dir()
 	if err != nil {
-		panic(err)
+		fmt.Println("Unable to get home directory:", err)
+		os.Exit(1)
 	}
 
 	return filepath.Join(home, ".config")
