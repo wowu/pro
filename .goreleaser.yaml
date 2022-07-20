@@ -25,12 +25,19 @@ brews:
     license: MIT
 
 nfpms:
-  - license: MIT
+  - id: packages
+    license: MIT
     homepage: https://github.com/wowu/pro
     description: A single command to quickly open current PR in browser.
     formats:
       - deb
       - rpm
+
+publishers:
+  - name: fury.io
+    ids: [packages]
+    dir: "{{ dir .ArtifactPath }}"
+    cmd: curl -F package=@{{ .ArtifactName }} https://{{ .Env.FURY_TOKEN }}@push.fury.io/wowu/
 
 changelog:
   filters:
