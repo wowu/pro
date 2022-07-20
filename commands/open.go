@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"wowu/pro/cfg"
+	"wowu/pro/config"
 	"wowu/pro/providers/github"
 	"wowu/pro/providers/gitlab"
 
@@ -109,7 +109,7 @@ func findRepo(path string) (*git.Repository, error) {
 }
 
 func openGitLab(branch string, projectPath string, print bool) {
-	gitlabToken := cfg.Get().GitLabToken
+	gitlabToken := config.Get().GitLabToken
 
 	if gitlabToken == "" {
 		color.Red("GitLab token is not set. Run `pro auth gitlab` to set it.")
@@ -140,7 +140,7 @@ func openGitLab(branch string, projectPath string, print bool) {
 }
 
 func openGitHub(branch string, projectPath string, print bool) {
-	githubToken := cfg.Get().GitHubToken
+	githubToken := config.Get().GitHubToken
 
 	if githubToken == "" {
 		color.Red("GitHub token is not set. Run `pro auth github` to set it.")

@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 	"syscall"
-	"wowu/pro/cfg"
+	"wowu/pro/config"
 	"wowu/pro/providers/github"
 	"wowu/pro/providers/gitlab"
 
@@ -57,9 +57,9 @@ func authgitlab() {
 		}
 	}
 
-	config := cfg.Get()
-	config.GitLabToken = token
-	cfg.Save(config)
+	conf := config.Get()
+	conf.GitLabToken = token
+	config.Save(conf)
 
 	color.Green("Saved.")
 }
@@ -97,9 +97,9 @@ func authgithub() {
 		}
 	}
 
-	config := cfg.Get()
-	config.GitHubToken = token
-	cfg.Save(config)
+	conf := config.Get()
+	conf.GitHubToken = token
+	config.Save(conf)
 
 	color.Green("Saved.")
 }
