@@ -117,7 +117,11 @@ func openGitLab(branch string, projectPath string, print bool) {
 	}
 
 	mergeRequests, err := gitlab.MergeRequests(projectPath, gitlabToken)
-	handleError(err, "Unable to get merge requests")
+	if err != nil {
+		color.Red("Unable to get merge requests: %s", err.Error())
+		fmt.Println("You may need to authorize GitLab again.")
+		os.Exit(1)
+	}
 
 	// find merge request for current branch
 	currentMergeRequestIndex := slices.IndexFunc(mergeRequests, func(mr gitlab.MergeRequestResponse) bool {
@@ -150,7 +154,11 @@ func openGitHub(branch string, projectPath string, print bool) {
 	}
 
 	pullRequests, err := github.PullRequests(projectPath, githubToken)
-	handleError(err, "Unable to get pull requests")
+	if err != nil {
+		color.Red("Unable to get pull requests: %s", err.Error())
+		fmt.Println("You may need to authorize GitHub again.")
+		os.Exit(1)
+	}
 
 	// find pull request for current branch
 	currentPullRequestIndex := slices.IndexFunc(pullRequests, func(pr github.PullRequestResponse) bool {

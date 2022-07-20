@@ -26,8 +26,10 @@ func Auth(provider string) {
 }
 
 func authgitlab() {
-	fmt.Println("Generate your token at https://gitlab.com/-/profile/personal_access_tokens?name=pro+cli&scopes=read_api")
+	fmt.Println("Generate your token at " + color.BlueString("https://gitlab.com/-/profile/personal_access_tokens?name=pro+cli&scopes=read_api"))
+	fmt.Println()
 	fmt.Println("The only required scope is 'read_api'")
+	fmt.Println()
 
 	// Ask for token
 	fmt.Print("Token: ")
@@ -63,8 +65,11 @@ func authgitlab() {
 }
 
 func authgithub() {
-	fmt.Println("Generate personal access token at https://github.com/settings/tokens/new")
+	fmt.Println("Generate personal access token at " + color.BlueString("https://github.com/settings/tokens/new?description=pro+cli&scopes=repo"))
+	fmt.Println()
 	fmt.Println("The only required scope is 'repo'")
+	color.Yellow("It's recommended to set expiration to \"No expiration\"")
+	fmt.Println()
 
 	// ask for token
 	fmt.Print("Token: ")

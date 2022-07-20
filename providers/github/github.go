@@ -3,6 +3,7 @@ package github
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -60,7 +61,7 @@ func User(token string) (UserResponse, error) {
 
 		return user, nil
 	default:
-		return UserResponse{}, errors.New("Unknown response code")
+		return UserResponse{}, errors.New("Unknown response code: " + fmt.Sprint(resp.StatusCode))
 	}
 }
 
@@ -93,6 +94,6 @@ func PullRequests(projectPath string, token string) ([]PullRequestResponse, erro
 
 		return pullRequests, nil
 	default:
-		return nil, errors.New("Unknown response code")
+		return nil, errors.New("Unknown response code: " + fmt.Sprint(resp.StatusCode))
 	}
 }
