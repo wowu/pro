@@ -1,3 +1,6 @@
+release:
+  name_template: "pro v{{.Version}}"
+
 before:
   hooks:
     - go mod tidy
