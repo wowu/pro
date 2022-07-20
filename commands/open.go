@@ -17,10 +17,10 @@ import (
 )
 
 func Open(repoPath string, print bool) {
-	r, err := git.PlainOpen(repoPath)
+	repository, err := git.PlainOpen(repoPath)
 	handleError(err)
 
-	remotes, err := r.Remotes()
+	remotes, err := repository.Remotes()
 	handleError(err)
 	if len(remotes) == 0 {
 		fmt.Println("No remotes found")
@@ -28,11 +28,11 @@ func Open(repoPath string, print bool) {
 	}
 
 	// check if there is a remote named origin
-	origin, err := r.Remote("origin")
+	origin, err := repository.Remote("origin")
 	handleError(err)
 
 	// get current head
-	head, err := r.Head()
+	head, err := repository.Head()
 	handleError(err)
 
 	if !head.Name().IsBranch() {
@@ -52,7 +52,7 @@ func Open(repoPath string, print bool) {
 	if branch == "master" || branch == "main" || branch == "trunk" {
 		fmt.Println("Looks like you are on the main branch. Opening home page.")
 
-		homeUrl := fmt.Sprintf("https://%s/%s", gitURL.Host, gitURL.Path)
+		homeUrl := fmt.Sprintf("https://%s/%s", gitURL.Host, strings.TrimPrefix(gitURL.Path, "/"))
 		homeUrl = strings.TrimSuffix(homeUrl, ".git")
 
 		if print {
