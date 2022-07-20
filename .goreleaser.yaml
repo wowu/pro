@@ -24,6 +24,14 @@ brews:
     homepage: https://github.com/wowu/pro
     license: MIT
 
+nfpms:
+  - license: MIT
+    homepage: https://github.com/wowu/pro
+    description: A single command to quickly open current PR in browser.
+    formats:
+      - deb
+      - rpm
+
 changelog:
   filters:
     exclude:
@@ -32,3 +40,4 @@ changelog:
       - '^chore:'
       - '^refactor:'
       - '^test:'
+      - '^build:'
