@@ -32,6 +32,12 @@ Tokens are stored in `~/.config/pro/config.yml` by default.
 
 ## Installation
 
+### Homebrew
+
+```bash
+brew install wowu/tap/pro
+```
+
 ### Compile from source
 
 Install go 1.18 (`brew install go` or [offical docs](https://go.dev/doc/install)), then compile the binary from source with:
@@ -41,3 +47,7 @@ go install github.com/wowu/pro@latest
 ```
 
 `pro` binary will be installed in `$GOPATH/bin`, most likely `~/go/bin/pro`.
+
+### Other platforms
+
+Download binaries from the [releases page][].
