@@ -15,7 +15,6 @@ import (
 	"github.com/fatih/color"
 	"github.com/go-git/go-git/v5"
 	giturls "github.com/whilp/git-urls"
-	"golang.org/x/exp/slices"
 )
 
 func Open(repoPath string, print bool) {
@@ -69,7 +68,8 @@ func Open(repoPath string, print bool) {
 		os.Exit(0)
 	}
 
-	projectPath := strings.TrimSuffix(gitURL.Path, ".git")
+	projectPath := strings.TrimPrefix(gitURL.Path, "/")
+	projectPath = strings.TrimSuffix(projectPath, ".git")
 
 	switch gitURL.Host {
 	case "gitlab.com":
@@ -116,26 +116,20 @@ func openGitLab(branch string, projectPath string, print bool) {
 		os.Exit(1)
 	}
 
-	mergeRequests, err := gitlab.MergeRequests(projectPath, gitlabToken)
+	mergeRequest, err := gitlab.FindMergeRequest(projectPath, gitlabToken, branch)
 	if err != nil {
-		color.Red("Unable to get merge requests: %s", err.Error())
-		fmt.Println("You may need to authorize GitLab again.")
-		os.Exit(1)
+		if errors.Is(err, gitlab.ErrNotFound) {
+			fmt.Println("No open merge request found for current branch")
+			fmt.Printf("Create pull request at https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s\n", projectPath, branch)
+			os.Exit(0)
+		} else {
+			color.Red("Unable to get merge requests: %s", err.Error())
+			fmt.Println("You may need to authorize GitLab again.")
+			os.Exit(1)
+		}
 	}
 
-	// find merge request for current branch
-	currentMergeRequestIndex := slices.IndexFunc(mergeRequests, func(mr gitlab.MergeRequestResponse) bool {
-		return mr.SourceBranch == branch && mr.State == "opened"
-	})
-
-	if currentMergeRequestIndex == -1 {
-		fmt.Println("No open merge request found for current branch")
-		fmt.Printf("Create pull request at https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s\n", projectPath, branch)
-		os.Exit(0)
-	}
-
-	currentMergeRequest := mergeRequests[currentMergeRequestIndex]
-	url := currentMergeRequest.WebUrl
+	url := mergeRequest.WebUrl
 
 	if print {
 		color.Blue(url)
@@ -153,26 +147,20 @@ func openGitHub(branch string, projectPath string, print bool) {
 		os.Exit(1)
 	}
 
-	pullRequests, err := github.PullRequests(projectPath, githubToken)
+	pullRequest, err := github.FindPullRequest(projectPath, githubToken, branch)
 	if err != nil {
-		color.Red("Unable to get pull requests: %s", err.Error())
-		fmt.Println("You may need to authorize GitHub again.")
-		os.Exit(1)
+		if errors.Is(err, github.ErrNotFound) {
+			fmt.Println("No open pull request found for current branch")
+			fmt.Printf("Create pull request at https://github.com/%s/pull/new/%s\n", projectPath, branch)
+			os.Exit(0)
+		} else {
+			color.Red("Unable to get pull requests: %s", err.Error())
+			fmt.Println("You may need to authorize GitHub again.")
+			os.Exit(1)
+		}
 	}
 
-	// find pull request for current branch
-	currentPullRequestIndex := slices.IndexFunc(pullRequests, func(pr github.PullRequestResponse) bool {
-		return pr.Head.Ref == branch && pr.State == "open"
-	})
-
-	if currentPullRequestIndex == -1 {
-		fmt.Println("No open pull request found for current branch")
-		fmt.Printf("Create pull request at https://github.com/%s/pull/new/%s\n", projectPath, branch)
-		os.Exit(0)
-	}
-
-	currentPullRequest := pullRequests[currentPullRequestIndex]
-	url := currentPullRequest.HtmlURL
+	url := pullRequest.HtmlURL
 
 	if print {
 		color.Blue(url)

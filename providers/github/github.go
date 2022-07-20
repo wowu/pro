@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strings"
 )
 
-var ErrorUnauthorized = errors.New("Unauthorized")
-var ErrorNotFound = errors.New("Not found")
+var ErrUnauthorized = errors.New("Unauthorized")
+var ErrNotFound = errors.New("Not found")
 
 type ApiResponse struct {
 	StatusCode int
@@ -51,7 +53,7 @@ func User(token string) (UserResponse, error) {
 
 	switch resp.StatusCode {
 	case http.StatusUnauthorized:
-		return UserResponse{}, ErrorUnauthorized
+		return UserResponse{}, ErrUnauthorized
 	case http.StatusOK:
 		var user UserResponse
 		err = json.Unmarshal(resp.Body, &user)
@@ -75,25 +77,31 @@ type PullRequestResponse struct {
 	HtmlURL string `json:"html_url"`
 }
 
-func PullRequests(projectPath string, token string) ([]PullRequestResponse, error) {
-	url := "https://api.github.com/repos/" + projectPath + "/pulls"
+func FindPullRequest(projectPath string, token string, branch string) (PullRequestResponse, error) {
+	userOrOrg := strings.Split(projectPath, "/")[0]
+	url := "https://api.github.com/repos/" + projectPath + "/pulls?state=open&head=" + userOrOrg + ":" + url.QueryEscape(branch)
+
 	resp, err := apiGet(url, token)
 	if err != nil {
-		return nil, err
+		return PullRequestResponse{}, err
 	}
 
 	switch resp.StatusCode {
 	case http.StatusUnauthorized:
-		return nil, ErrorUnauthorized
+		return PullRequestResponse{}, ErrUnauthorized
 	case http.StatusOK:
 		var pullRequests []PullRequestResponse
 		err = json.Unmarshal(resp.Body, &pullRequests)
 		if err != nil {
-			return nil, err
+			return PullRequestResponse{}, err
 		}
 
-		return pullRequests, nil
+		if len(pullRequests) == 0 {
+			return PullRequestResponse{}, ErrNotFound
+		}
+
+		return pullRequests[0], nil
 	default:
-		return nil, errors.New("Unknown response code: " + fmt.Sprint(resp.StatusCode))
+		return PullRequestResponse{}, errors.New("Unknown response code: " + fmt.Sprint(resp.StatusCode))
 	}
 }

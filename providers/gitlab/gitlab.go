@@ -8,8 +8,8 @@ import (
 	"net/url"
 )
 
-var ErrorUnauthorized = errors.New("Unauthorized")
-var ErrorNotFound = errors.New("Not found")
+var ErrUnauthorized = errors.New("Unauthorized")
+var ErrNotFound = errors.New("Not found")
 
 type ApiResponse struct {
 	StatusCode int
@@ -51,7 +51,7 @@ func User(token string) (UserResponse, error) {
 
 	switch resp.StatusCode {
 	case http.StatusUnauthorized:
-		return UserResponse{}, ErrorUnauthorized
+		return UserResponse{}, ErrUnauthorized
 	case http.StatusOK:
 		var user UserResponse
 		err = json.Unmarshal(resp.Body, &user)
@@ -73,27 +73,31 @@ type MergeRequestResponse struct {
 	WebUrl       string `json:"web_url"`
 }
 
-func MergeRequests(projectPath string, token string) ([]MergeRequestResponse, error) {
-	url := "https://gitlab.com/api/v4/projects/" + url.QueryEscape(projectPath) + "/merge_requests"
+func FindMergeRequest(projectPath string, token string, branch string) (MergeRequestResponse, error) {
+	url := "https://gitlab.com/api/v4/projects/" + url.QueryEscape(projectPath) + "/merge_requests?state=opened&source_branch=" + url.QueryEscape(branch)
 	resp, err := apiGet(url, token)
 	if err != nil {
-		return []MergeRequestResponse{}, err
+		return MergeRequestResponse{}, err
 	}
 
 	switch resp.StatusCode {
 	case http.StatusUnauthorized:
-		return []MergeRequestResponse{}, ErrorUnauthorized
+		return MergeRequestResponse{}, ErrUnauthorized
 	case http.StatusNotFound:
-		return []MergeRequestResponse{}, ErrorNotFound
+		return MergeRequestResponse{}, ErrNotFound
 	case http.StatusOK:
 		var mergeRequests []MergeRequestResponse
 		err = json.Unmarshal(resp.Body, &mergeRequests)
 		if err != nil {
-			return []MergeRequestResponse{}, err
+			return MergeRequestResponse{}, err
 		}
 
-		return mergeRequests, nil
+		if len(mergeRequests) == 0 {
+			return MergeRequestResponse{}, ErrNotFound
+		}
+
+		return mergeRequests[0], nil
 	default:
-		return []MergeRequestResponse{}, errors.New("Unknown response code")
+		return MergeRequestResponse{}, errors.New("Unknown response code")
 	}
 }
