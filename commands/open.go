@@ -68,7 +68,8 @@ func Open(repoPath string, print bool) {
 		os.Exit(0)
 	}
 
-	projectPath := strings.TrimSuffix(gitURL.Path, ".git")
+	projectPath := strings.TrimPrefix(gitURL.Path, "/")
+	projectPath = strings.TrimSuffix(projectPath, ".git")
 
 	switch gitURL.Host {
 	case "gitlab.com":
