@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 
 	"github.com/mitchellh/go-homedir"
@@ -47,7 +46,8 @@ func Get() Config {
 
 func Save(config Config) {
 	// Make sure the config directory exists
-	err := os.MkdirAll(path.Dir(configfile()), 0750)
+	configdir, _ := filepath.Split(configfile())
+	err := os.MkdirAll(configdir, 0750)
 	if err != nil {
 		fmt.Println("Unable to create config directory:", err)
 		os.Exit(1)
