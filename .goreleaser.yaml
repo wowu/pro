@@ -33,6 +33,14 @@ nfpms:
       - deb
       - rpm
 
+scoop:
+  bucket:
+    owner: wowu
+    name: scoop
+    token: "{{ .Env.GORELEASER_REPO_TOKEN }}"
+  description: A single command to quickly open current PR in browser.
+  license: MIT
+
 publishers:
   - name: fury.io
     ids: [packages]
