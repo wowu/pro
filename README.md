@@ -45,15 +45,41 @@ scoop bucket add wowu https://github.com/wowu/scoop.git
 scoop install wowu/pro
 ```
 
-### Compile from source
+### dpkg (Ubuntu/Debian)
 
-Install go 1.18 (`brew install go` or [offical docs](https://go.dev/doc/install)), then compile the binary from source with:
+```bash
+wget https://github.com/wowu/pro/releases/latest/download/pro-linux-amd64.deb
+dpkg -i pro-linux-amd64.deb
+```
+
+Replace `amd64` with `arm64` if you are on ARM.
+
+### Download binary (Linux)
+
+```bash
+curl -sSL -o /usr/local/bin/pro https://github.com/wowu/pro/releases/latest/download/pro-linux-amd64
+chmod +x /usr/local/bin/pro
+```
+
+Replace `amd64` with `arm64` if you are on ARM.
+
+### Go package
 
 ```bash
 go install github.com/wowu/pro@latest
 ```
 
-`pro` binary will be installed in `$GOPATH/bin`, most likely `~/go/bin/pro`.
+Go 1.18 is required. `pro` binary will be installed in `$GOPATH/bin` (most likely `~/go/bin/pro`).
+
+### Compile from source
+
+1. Install Go 1.18 (`brew install go` or [see offical docs](https://go.dev/doc/install))
+2. Clone the repository and build the project:
+
+    ```bash
+    git clone git@github.com:Wowu/pro.git && cd pro
+    go build
+    ```
 
 ### Other platforms
 
