@@ -32,10 +32,17 @@ Tokens are stored in `~/.config/pro/config.yml` by default.
 
 ## Installation
 
-### Homebrew
+### Homebrew (macOS/Linux)
 
 ```bash
 brew install wowu/tap/pro
+```
+
+### Scoop (Windows)
+
+```bash
+scoop bucket add wowu https://github.com/wowu/scoop.git
+scoop install wowu/pro
 ```
 
 ### Compile from source
