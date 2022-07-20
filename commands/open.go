@@ -8,9 +8,10 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"wowu/pro/config"
-	"wowu/pro/providers/github"
-	"wowu/pro/providers/gitlab"
+
+	"github.com/wowu/pro/config"
+	"github.com/wowu/pro/providers/github"
+	"github.com/wowu/pro/providers/gitlab"
 
 	"github.com/fatih/color"
 	"github.com/go-git/go-git/v5"

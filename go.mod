@@ -1,4 +1,4 @@
-module wowu/pro
+module github.com/wowu/pro
 
 go 1.18
 

@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"wowu/pro/commands"
+
+	"github.com/wowu/pro/commands"
 
 	"github.com/urfave/cli/v2"
 )

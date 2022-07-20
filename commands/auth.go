@@ -5,9 +5,10 @@ import (
 	"os"
 	"strings"
 	"syscall"
-	"wowu/pro/config"
-	"wowu/pro/providers/github"
-	"wowu/pro/providers/gitlab"
+
+	"github.com/wowu/pro/config"
+	"github.com/wowu/pro/providers/github"
+	"github.com/wowu/pro/providers/gitlab"
 
 	"github.com/fatih/color"
 	"golang.org/x/term"
