@@ -28,7 +28,7 @@ func main() {
 				Name:      "auth",
 				ArgsUsage: "[gitlab|github]",
 				Usage:     "Authorize GitLab or GitHub",
-				UsageText: fmt.Sprintf("pro auth gitlab\npro login github"),
+				UsageText: "pro auth gitlab\npro login github",
 				Action: func(c *cli.Context) error {
 					if c.NArg() != 1 {
 						fmt.Println("Please specify provider (github or gitlab)")
@@ -64,5 +64,9 @@ func main() {
 		},
 	}
 
-	app.Run(os.Args)
+	err := app.Run(os.Args)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
