@@ -48,7 +48,7 @@ func authgitlab() {
 	_, err = gitlab.User(token)
 	if err != nil {
 		switch err {
-		case gitlab.ErrorUnauthorized:
+		case gitlab.ErrUnauthorized:
 			color.Red("Token is invalid. Try again")
 			os.Exit(1)
 		default:
@@ -88,7 +88,7 @@ func authgithub() {
 	_, err = github.User(token)
 	if err != nil {
 		switch err {
-		case github.ErrorUnauthorized:
+		case github.ErrUnauthorized:
 			color.Red("Token is invalid. Try again")
 			os.Exit(1)
 		default:
