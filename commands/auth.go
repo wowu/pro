@@ -26,7 +26,7 @@ func Auth(provider string) {
 }
 
 func authgitlab() {
-	fmt.Println("Generate your token at https://gitlab.com/-/profile/personal_access_tokens?name=PR+opener&scopes=api")
+	fmt.Println("Generate your token at https://gitlab.com/-/profile/personal_access_tokens?name=pro+cli&scopes=read_api")
 	fmt.Println("The only required scope is 'read_api'")
 
 	// Ask for token
