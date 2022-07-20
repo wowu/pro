@@ -50,4 +50,4 @@ go install github.com/wowu/pro@latest
 
 ### Other platforms
 
-Download binaries from the [releases page][].
+Download binaries from the [releases page](https://github.com/wowu/pro/releases/latest).
