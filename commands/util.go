@@ -5,10 +5,15 @@ import (
 	"os"
 )
 
-// Print error and exit
-func handleError(err error) {
+// Print error and exit if error is present
+func handleError(err error, reason string) {
 	if err != nil {
-		fmt.Println(err)
+		if reason != "" {
+			fmt.Println(reason+":", err)
+		} else {
+			fmt.Println(err)
+		}
+
 		os.Exit(1)
 	}
 }

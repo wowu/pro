@@ -33,7 +33,7 @@ func authgitlab() {
 	fmt.Print("Token: ")
 	byteToken, err := term.ReadPassword(int(syscall.Stdin))
 	fmt.Println()
-	handleError(err)
+	handleError(err, "Error while reading token")
 
 	token := strings.TrimSpace(string(byteToken))
 
@@ -70,7 +70,7 @@ func authgithub() {
 	fmt.Print("Token: ")
 	byteToken, err := term.ReadPassword(int(syscall.Stdin))
 	fmt.Println()
-	handleError(err)
+	handleError(err, "Error while reading token")
 
 	token := strings.TrimSpace(string(byteToken))
 

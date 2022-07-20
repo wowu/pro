@@ -1,9 +1,11 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"wowu/pro/cfg"
@@ -17,26 +19,28 @@ import (
 )
 
 func Open(repoPath string, print bool) {
-	repository, err := git.PlainOpen(repoPath)
-	handleError(err)
-
-	remotes, err := repository.Remotes()
-	handleError(err)
-	if len(remotes) == 0 {
-		fmt.Println("No remotes found")
-		os.Exit(0)
+	repository, err := findRepo(repoPath)
+	if err != nil {
+		color.Red("Unable to find git repository in given directory or any of parent directories.")
+		fmt.Println("Please make sure you are in the project directory.")
+		os.Exit(1)
 	}
 
 	// check if there is a remote named origin
 	origin, err := repository.Remote("origin")
-	handleError(err)
+	if err != nil {
+		color.Red("No remote named \"origin\" found.")
+		fmt.Println("Please make sure you have a remote named \"origin\".")
+		os.Exit(1)
+	}
 
 	// get current head
 	head, err := repository.Head()
-	handleError(err)
+	handleError(err, "Unable to get repository head")
 
 	if !head.Name().IsBranch() {
-		fmt.Println("Not on a branch")
+		color.Red("No active branch found.")
+		fmt.Println("Switch to a branch and try again.")
 		os.Exit(0)
 	}
 
@@ -47,7 +51,7 @@ func Open(repoPath string, print bool) {
 	originURL := origin.Config().URLs[0]
 
 	gitURL, err := giturls.Parse(originURL)
-	handleError(err)
+	handleError(err, "Unable to parse origin URL")
 
 	if branch == "master" || branch == "main" || branch == "trunk" {
 		fmt.Println("Looks like you are on the main branch. Opening home page.")
@@ -78,6 +82,32 @@ func Open(repoPath string, print bool) {
 	}
 }
 
+// Find git repository in given directory or parent directories
+func findRepo(path string) (*git.Repository, error) {
+	absolutePath, err := filepath.Abs(path)
+	if err != nil {
+		return nil, err
+	}
+
+	repository, err := git.PlainOpen(absolutePath)
+
+	if err == nil {
+		return repository, nil
+	}
+
+	if errors.Is(err, git.ErrRepositoryNotExists) {
+		// Base case - we've reached the root of the filesystem
+		if absolutePath == "/" {
+			return nil, errors.New("No git repository found")
+		}
+
+		// Recurse to parent directory
+		return findRepo(filepath.Dir(absolutePath))
+	}
+
+	return nil, err
+}
+
 func openGitLab(branch string, projectPath string, print bool) {
 	gitlabToken := cfg.Get().GitLabToken
 
@@ -87,7 +117,7 @@ func openGitLab(branch string, projectPath string, print bool) {
 	}
 
 	mergeRequests, err := gitlab.MergeRequests(projectPath, gitlabToken)
-	handleError(err)
+	handleError(err, "Unable to get merge requests")
 
 	// find merge request for current branch
 	currentMergeRequestIndex := slices.IndexFunc(mergeRequests, func(mr gitlab.MergeRequestResponse) bool {
@@ -120,7 +150,7 @@ func openGitHub(branch string, projectPath string, print bool) {
 	}
 
 	pullRequests, err := github.PullRequests(projectPath, githubToken)
-	handleError(err)
+	handleError(err, "Unable to get pull requests")
 
 	// find pull request for current branch
 	currentPullRequestIndex := slices.IndexFunc(pullRequests, func(pr github.PullRequestResponse) bool {
