@@ -12,3 +12,20 @@ builds:
   - id: darwin
     goos: [darwin]
     goarch: [amd64, arm64]
+
+brews:
+  - tap:
+      owner: wowu
+      name: homebrew-tap
+      token: "{{ .Env.GORELEASER_REPO_TOKEN }}"
+    homepage: https://github.com/wowu/pro
+    license: MIT
+
+changelog:
+  filters:
+    exclude:
+      - '^docs:'
+      - '^ci:'
+      - '^chore:'
+      - '^refactor:'
+      - '^test:'
