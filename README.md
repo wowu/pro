@@ -2,6 +2,8 @@
 
 A single command to open current PR in browser. Supports GitHub and GitLab.
 
+![pro](pro.png)
+
 ## Usage
 
 Open Pull Request for current branch in browser:
