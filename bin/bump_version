@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <version>"
+  exit 1
+fi
+
+# check if git is clean
+if ! git diff-index --quiet HEAD --; then
+  echo "Please commit your changes before bumping the version"
+  exit 1
+fi
+
+echo "Last version: $(git describe --abbrev=0 --tags)"
+echo "New version:  $1"
+
+read -p "This command will replace version strings and create a commit. Proceed? (y/n) " -n 1 -r; echo
+[ "$REPLY" != "y" ] && exit 1
+
+gsed -i -E "s/(Version: +)\".+\"/\1\"$1\"/" pro.go
+git add pro.go
+echo pro.go Done
+
+git commit -m "Bump version to $1"
+
+read -p "Do you want to tag the commit? (y/n) " -n 1 -r; echo
+if [ "$REPLY" = "y" ]; then
+  git tag "$1"
+fi
+
+git show

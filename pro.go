@@ -21,9 +21,10 @@ func main() {
 	// cli library API example:
 	// https://github.com/urfave/cli/blob/main/docs/v2/manual.md#full-api-example
 	app := &cli.App{
-		Name:  "pro",
-		Usage: "Pull Request Opener",
-		Flags: openCommandFlags,
+		Name:    "pro",
+		Usage:   "Pull Request Opener",
+		Version: "v0.1.4",
+		Flags:   openCommandFlags,
 		Commands: []*cli.Command{
 			{
 				Name:      "auth",
