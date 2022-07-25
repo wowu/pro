@@ -8,59 +8,27 @@ A single command to open current PR in browser. Supports GitHub and GitLab. Avai
 ![pro](pro.png)
 
 - [Demo](#demo)
-- [Usage](#usage)
-  - [Authorize GitHub / GitLab](#authorize-github--gitlab)
-  - [Open  Pull Request in default browser](#open--pull-request-in-default-browser)
 - [Installation](#installation)
-  - [Homebrew (macOS/Linux)](#homebrew-macoslinux)
+  - [Homebrew (macOS/Linux) - recommended](#homebrew-macoslinux---recommended)
   - [Scoop (Windows)](#scoop-windows)
   - [dpkg (Ubuntu/Debian)](#dpkg-ubuntudebian)
   - [Download latest binary (Linux)](#download-latest-binary-linux)
   - [Go package](#go-package)
   - [Compile from source](#compile-from-source)
   - [Precompiled binaries](#precompiled-binaries)
+- [Usage](#usage)
+  - [Authorize GitHub / GitLab](#authorize-github--gitlab)
+    - [GitHub](#github)
+    - [GitLab](#gitlab)
+  - [Open  Pull Request in default browser](#open--pull-request-in-default-browser)
 
 ## Demo
 
 ![pro](pro.gif)
 
-## Usage
-
-### Authorize GitHub / GitLab
-
-`pro` uses GitHub or GitLab API to find Pull Request related to current branch. Access is granted via personal access tokens.
-
-Use `auth` command to login:
-
-```bash
-# GitHub
-pro auth github
-
-# GitLab
-pro auth gitlab
-```
-
-You will be asked to generate access token and paste it. Tokens are stored in `~/.config/pro/config.yml` by default.
-
-### Open  Pull Request in default browser
-
-To open current Pull Request simply type:
-
-```bash
-pro
-```
-
-If you're on the main branch (`main`, `master`, `trunk`, etc.) repository homepage will be opened instead. If no PR matching current branch is found, a URL to create new Pull Request will be printed.
-
-Use `-p | --print` flag to print the Pull Request URL instead of opening it in default browser:
-
-```bash
-pro -p
-```
-
 ## Installation
 
-### Homebrew (macOS/Linux)
+### Homebrew (macOS/Linux) - recommended
 
 ```bash
 brew install wowu/tap/pro
@@ -112,3 +80,46 @@ Go 1.18 is required. `pro` binary will be installed in `$GOPATH/bin` (most likel
 ### Precompiled binaries
 
 Download binaries from the [releases page](https://github.com/wowu/pro/releases/latest).
+
+## Usage
+
+### Authorize GitHub / GitLab
+
+`pro` uses GitHub or GitLab API to find Pull Request related to current branch. Access is granted via personal access tokens.
+
+#### GitHub
+
+Use `auth` command to login:
+
+```bash
+pro auth github
+```
+
+You will be asked to [generate personal access token](https://github.com/settings/tokens/new?description=pro+cli&scopes=repo) and paste it in the prompt. It's recommended to change "Expiration" to "No expiration" before creating the token. Token will be stored in `~/.config/pro/config.yml`.
+
+#### GitLab
+
+Use `auth` command to login:
+
+```bash
+pro auth gitlab
+```
+
+You will be asked to [generate personal access token](https://gitlab.com/-/profile/personal_access_tokens?name=pro+cli&scopes=read_api) and paste it in the prompt. Token will be stored in `~/.config/pro/config.yml`.
+
+### Open  Pull Request in default browser
+
+To open current Pull Request simply type:
+
+```bash
+pro
+```
+
+If you're on the main branch (`main`, `master`, `trunk`, etc.) repository homepage will be opened instead. If no PR matching current branch is found, a URL to create new Pull Request will be printed.
+
+Use `-p | --print` flag to print the Pull Request URL instead of opening it in default browser:
+
+```bash
+pro -p
+```
+
