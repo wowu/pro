@@ -99,7 +99,7 @@ func findRepo(path string) (*git.Repository, error) {
 	if errors.Is(err, git.ErrRepositoryNotExists) {
 		// Base case - we've reached the root of the filesystem
 		if absolutePath == "/" {
-			return nil, errors.New("No git repository found")
+			return nil, errors.New("no git repository found")
 		}
 
 		// Recurse to parent directory
@@ -123,9 +123,12 @@ func openGitLab(branch string, projectPath string, print bool) {
 			fmt.Println("No open merge request found for current branch")
 			fmt.Println("Create pull request at", color.BlueString("https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s", projectPath, branch))
 			os.Exit(0)
+		} else if errors.Is(err, gitlab.ErrUnauthorized) || errors.Is(err, gitlab.ErrTokenExpired) {
+			color.Red("Unable to get merge requests: %s", err.Error())
+			fmt.Println("Connect GitLab again with `pro auth gitlab`.")
+			os.Exit(1)
 		} else {
 			color.Red("Unable to get merge requests: %s", err.Error())
-			fmt.Println("You may need to authorize GitLab again.")
 			os.Exit(1)
 		}
 	}
@@ -154,9 +157,12 @@ func openGitHub(branch string, projectPath string, print bool) {
 			fmt.Println("No open pull request found for current branch")
 			fmt.Println("Create pull request at", color.BlueString("https://github.com/%s/pull/new/%s", projectPath, branch))
 			os.Exit(0)
+		} else if errors.Is(err, github.ErrUnauthorized) {
+			color.Red("Unable to get pull requests: %s", err.Error())
+			fmt.Println("Token may be expired or deleted. Run `pro auth github` to connect GitHub again.")
+			os.Exit(1)
 		} else {
 			color.Red("Unable to get pull requests: %s", err.Error())
-			fmt.Println("You may need to authorize GitHub again.")
 			os.Exit(1)
 		}
 	}

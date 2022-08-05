@@ -10,8 +10,8 @@ import (
 	"strings"
 )
 
-var ErrUnauthorized = errors.New("Unauthorized")
-var ErrNotFound = errors.New("Not found")
+var ErrUnauthorized = errors.New("unauthorized")
+var ErrNotFound = errors.New("not found")
 
 type ApiResponse struct {
 	StatusCode int
@@ -63,7 +63,7 @@ func User(token string) (UserResponse, error) {
 
 		return user, nil
 	default:
-		return UserResponse{}, errors.New("Unknown response code: " + fmt.Sprint(resp.StatusCode))
+		return UserResponse{}, errors.New("unknown response code: " + fmt.Sprint(resp.StatusCode))
 	}
 }
 
@@ -102,6 +102,6 @@ func FindPullRequest(projectPath string, token string, branch string) (PullReque
 
 		return pullRequests[0], nil
 	default:
-		return PullRequestResponse{}, errors.New("Unknown response code: " + fmt.Sprint(resp.StatusCode))
+		return PullRequestResponse{}, errors.New("unknown response code: " + fmt.Sprint(resp.StatusCode))
 	}
 }

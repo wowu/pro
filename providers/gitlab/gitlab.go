@@ -8,8 +8,9 @@ import (
 	"net/url"
 )
 
-var ErrUnauthorized = errors.New("Unauthorized")
-var ErrNotFound = errors.New("Not found")
+var ErrUnauthorized = errors.New("unauthorized")
+var ErrNotFound = errors.New("not found")
+var ErrTokenExpired = errors.New("token expired")
 
 type ApiResponse struct {
 	StatusCode int
@@ -61,7 +62,7 @@ func User(token string) (UserResponse, error) {
 
 		return user, nil
 	default:
-		return UserResponse{}, errors.New("Unknown response code")
+		return UserResponse{}, errors.New("unknown response code")
 	}
 }
 
@@ -82,7 +83,17 @@ func FindMergeRequest(projectPath string, token string, branch string) (MergeReq
 
 	switch resp.StatusCode {
 	case http.StatusUnauthorized:
-		return MergeRequestResponse{}, ErrUnauthorized
+		var body map[string]interface{}
+		err = json.Unmarshal(resp.Body, &body)
+		if err != nil {
+			return MergeRequestResponse{}, err
+		}
+
+		if body["error_description"] == "Token is expired. You can either do re-authorization or token refresh." {
+			return MergeRequestResponse{}, ErrTokenExpired
+		} else {
+			return MergeRequestResponse{}, ErrUnauthorized
+		}
 	case http.StatusNotFound:
 		return MergeRequestResponse{}, ErrNotFound
 	case http.StatusOK:
@@ -98,6 +109,6 @@ func FindMergeRequest(projectPath string, token string, branch string) (MergeReq
 
 		return mergeRequests[0], nil
 	default:
-		return MergeRequestResponse{}, errors.New("Unknown response code")
+		return MergeRequestResponse{}, errors.New("unknown response code")
 	}
 }
