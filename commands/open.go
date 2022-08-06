@@ -53,7 +53,7 @@ func Open(repoPath string, print bool) {
 	gitURL, err := giturls.Parse(originURL)
 	handleError(err, "Unable to parse origin URL")
 
-	if branch == "master" || branch == "main" || branch == "trunk" {
+	if branch == "master" || branch == "main" || branch == "trunk" || branch == "develop" {
 		fmt.Println("Looks like you are on the main branch. Opening home page.")
 
 		homeUrl := fmt.Sprintf("https://%s/%s", gitURL.Host, strings.TrimPrefix(gitURL.Path, "/"))
