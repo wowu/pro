@@ -21,16 +21,16 @@ import (
 func Open(repoPath string, print bool) {
 	repository, err := findRepo(repoPath)
 	if err != nil {
-		color.Red("Unable to find git repository in given directory or any of parent directories.")
-		fmt.Println("Please make sure you are in the project directory.")
+		fmt.Fprintln(os.Stderr, color.RedString("Unable to find git repository in given directory or any of parent directories."))
+		fmt.Fprintln(os.Stderr, "Please make sure you are in the project directory.")
 		os.Exit(1)
 	}
 
 	// check if there is a remote named origin
 	origin, err := repository.Remote("origin")
 	if err != nil {
-		color.Red("No remote named \"origin\" found.")
-		fmt.Println("Please make sure you have a remote named \"origin\".")
+		fmt.Fprintln(os.Stderr, color.RedString("No remote named \"origin\" found."))
+		fmt.Fprintln(os.Stderr, "Please make sure you have a remote named \"origin\".")
 		os.Exit(1)
 	}
 
@@ -39,14 +39,14 @@ func Open(repoPath string, print bool) {
 	handleError(err, "Unable to get repository head")
 
 	if !head.Name().IsBranch() {
-		color.Red("No active branch found.")
-		fmt.Println("Switch to a branch and try again.")
+		fmt.Fprintln(os.Stderr, color.RedString("No active branch found."))
+		fmt.Fprintln(os.Stderr, "Switch to a branch and try again.")
 		os.Exit(0)
 	}
 
 	// get current branch name
 	branch := head.Name().Short()
-	fmt.Printf("Current branch: %s\n", color.GreenString(branch))
+	fmt.Fprintf(os.Stderr, "Current branch: %s\n", color.GreenString(branch))
 
 	originURL := origin.Config().URLs[0]
 
@@ -54,7 +54,7 @@ func Open(repoPath string, print bool) {
 	handleError(err, "Unable to parse origin URL")
 
 	if branch == "master" || branch == "main" || branch == "trunk" || branch == "develop" {
-		fmt.Println("Looks like you are on the main branch. Opening home page.")
+		fmt.Fprintln(os.Stderr, "Looks like you are on the main branch. Opening home page.")
 
 		homeUrl := fmt.Sprintf("https://%s/%s", gitURL.Host, strings.TrimPrefix(gitURL.Path, "/"))
 		homeUrl = strings.TrimSuffix(homeUrl, ".git")
@@ -78,7 +78,7 @@ func Open(repoPath string, print bool) {
 	case "github.com":
 		openGitHub(branch, projectPath, print)
 	default:
-		fmt.Println("Unknown remote type")
+		fmt.Fprintln(os.Stderr, "Unknown remote type")
 		os.Exit(1)
 	}
 }
@@ -120,15 +120,15 @@ func openGitLab(branch string, projectPath string, print bool) {
 	mergeRequest, err := gitlab.FindMergeRequest(projectPath, gitlabToken, branch)
 	if err != nil {
 		if errors.Is(err, gitlab.ErrNotFound) {
-			fmt.Println("No open merge request found for current branch")
-			fmt.Println("Create pull request at", color.BlueString("https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s", projectPath, branch))
+			fmt.Fprintln(os.Stderr, "No open merge request found for current branch")
+			fmt.Fprintln(os.Stderr, "Create pull request at", color.BlueString("https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s", projectPath, branch))
 			os.Exit(0)
 		} else if errors.Is(err, gitlab.ErrUnauthorized) || errors.Is(err, gitlab.ErrTokenExpired) {
-			color.Red("Unable to get merge requests: %s", err.Error())
-			fmt.Println("Connect GitLab again with `pro auth gitlab`.")
+			fmt.Fprintln(os.Stderr, color.RedString("Unable to get merge requests: %s", err.Error()))
+			fmt.Fprintln(os.Stderr, "Connect GitLab again with `pro auth gitlab`.")
 			os.Exit(1)
 		} else {
-			color.Red("Unable to get merge requests: %s", err.Error())
+			fmt.Fprintln(os.Stderr, color.RedString("Unable to get merge requests: %s", err.Error()))
 			os.Exit(1)
 		}
 	}
@@ -138,7 +138,7 @@ func openGitLab(branch string, projectPath string, print bool) {
 	if print {
 		color.Blue(url)
 	} else {
-		fmt.Println("Opening " + color.BlueString(url))
+		fmt.Fprintln(os.Stderr, "Opening "+color.BlueString(url))
 		openBrowser(url)
 	}
 }
@@ -147,22 +147,22 @@ func openGitHub(branch string, projectPath string, print bool) {
 	githubToken := config.Get().GitHubToken
 
 	if githubToken == "" {
-		color.Red("GitHub token is not set. Run `pro auth github` to set it.")
+		fmt.Fprintln(os.Stderr, color.RedString("GitHub token is not set. Run `pro auth github` to set it."))
 		os.Exit(1)
 	}
 
 	pullRequest, err := github.FindPullRequest(projectPath, githubToken, branch)
 	if err != nil {
 		if errors.Is(err, github.ErrNotFound) {
-			fmt.Println("No open pull request found for current branch")
-			fmt.Println("Create pull request at", color.BlueString("https://github.com/%s/pull/new/%s", projectPath, branch))
+			fmt.Fprintln(os.Stderr, "No open pull request found for current branch")
+			fmt.Fprintln(os.Stderr, "Create pull request at", color.BlueString("https://github.com/%s/pull/new/%s", projectPath, branch))
 			os.Exit(0)
 		} else if errors.Is(err, github.ErrUnauthorized) {
-			color.Red("Unable to get pull requests: %s", err.Error())
-			fmt.Println("Token may be expired or deleted. Run `pro auth github` to connect GitHub again.")
+			fmt.Fprintln(os.Stderr, color.RedString("Unable to get pull requests: %s", err.Error()))
+			fmt.Fprintln(os.Stderr, "Token may be expired or deleted. Run `pro auth github` to connect GitHub again.")
 			os.Exit(1)
 		} else {
-			color.Red("Unable to get pull requests: %s", err.Error())
+			fmt.Fprintln(os.Stderr, color.RedString("Unable to get pull requests: %s", err.Error()))
 			os.Exit(1)
 		}
 	}
@@ -172,7 +172,7 @@ func openGitHub(branch string, projectPath string, print bool) {
 	if print {
 		color.Blue(url)
 	} else {
-		fmt.Println("Opening " + color.BlueString(url))
+		fmt.Fprintln(os.Stderr, "Opening "+color.BlueString(url))
 		openBrowser(url)
 	}
 }

@@ -21,7 +21,7 @@ func Auth(provider string) {
 	case "github":
 		authgithub()
 	default:
-		fmt.Println("unknown provider")
+		fmt.Fprintln(os.Stderr, "unknown provider")
 		os.Exit(1)
 	}
 }

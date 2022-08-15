@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -23,21 +22,21 @@ func Get() Config {
 		if os.IsNotExist(err) {
 			return Config{}
 		} else {
-			fmt.Println("Unable to stat config file:", err)
+			fmt.Fprintln(os.Stderr, "Unable to stat config file:", err)
 			os.Exit(1)
 		}
 	}
 
-	data, err := ioutil.ReadFile(configfile())
+	data, err := os.ReadFile(configfile())
 	if err != nil {
-		fmt.Println("Unable to read config file:", err)
+		fmt.Fprintln(os.Stderr, "Unable to read config file:", err)
 		os.Exit(1)
 	}
 
 	var config Config
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		fmt.Println("Unable to unmarshal config file:", err)
+		fmt.Fprintln(os.Stderr, "Unable to unmarshal config file:", err)
 		os.Exit(1)
 	}
 
@@ -49,19 +48,19 @@ func Save(config Config) {
 	configdir, _ := filepath.Split(configfile())
 	err := os.MkdirAll(configdir, 0750)
 	if err != nil {
-		fmt.Println("Unable to create config directory:", err)
+		fmt.Fprintln(os.Stderr, "Unable to create config directory:", err)
 		os.Exit(1)
 	}
 
 	data, err := yaml.Marshal(config)
 	if err != nil {
-		fmt.Println("Unable to marshal config:", err)
+		fmt.Fprintln(os.Stderr, "Unable to marshal config:", err)
 		os.Exit(1)
 	}
 
-	err = ioutil.WriteFile(configfile(), data, 0600)
+	err = os.WriteFile(configfile(), data, 0600)
 	if err != nil {
-		fmt.Println("Unable to write config file:", err)
+		fmt.Fprintln(os.Stderr, "Unable to write config file:", err)
 		os.Exit(1)
 	}
 }
@@ -69,7 +68,7 @@ func Save(config Config) {
 func configdir() string {
 	home, err := homedir.Dir()
 	if err != nil {
-		fmt.Println("Unable to get home directory:", err)
+		fmt.Fprintln(os.Stderr, "Unable to get home directory:", err)
 		os.Exit(1)
 	}
 
