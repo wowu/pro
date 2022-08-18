@@ -9,9 +9,9 @@ import (
 func handleError(err error, reason string) {
 	if err != nil {
 		if reason != "" {
-			fmt.Println(reason+":", err)
+			fmt.Fprintln(os.Stderr, reason+":", err)
 		} else {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 		}
 
 		os.Exit(1)
