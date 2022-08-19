@@ -15,6 +15,11 @@ var openCommandFlags = []cli.Flag{
 		Aliases: []string{"p"},
 		Usage:   "print URL instead of opening in browser",
 	},
+	&cli.BoolFlag{
+		Name:    "copy",
+		Aliases: []string{"c"},
+		Usage:   "copy URL to clipboard instead of opening in browser",
+	},
 }
 
 func main() {
@@ -54,13 +59,13 @@ func main() {
 				Usage: "Open PR page in browser (default action)",
 				Flags: openCommandFlags,
 				Action: func(c *cli.Context) error {
-					command.Open(".", c.Bool("print"))
+					command.Open(".", c.Bool("print"), c.Bool("copy"))
 					return nil
 				},
 			},
 		},
 		Action: func(c *cli.Context) error {
-			command.Open(".", c.Bool("print"))
+			command.Open(".", c.Bool("print"), c.Bool("copy"))
 
 			return nil
 		},
