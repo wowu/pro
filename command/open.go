@@ -12,13 +12,14 @@ import (
 	"github.com/wowu/pro/config"
 	"github.com/wowu/pro/provider/github"
 	"github.com/wowu/pro/provider/gitlab"
+	"golang.design/x/clipboard"
 
 	"github.com/fatih/color"
 	"github.com/go-git/go-git/v5"
 	giturls "github.com/whilp/git-urls"
 )
 
-func Open(repoPath string, print bool) {
+func Open(repoPath string, print bool, copy bool) {
 	repository, err := findRepo(repoPath)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, color.RedString("Unable to find git repository in given directory or any of parent directories."))
@@ -61,6 +62,9 @@ func Open(repoPath string, print bool) {
 
 		if print {
 			color.Blue(homeUrl)
+		} else if copy {
+			copyToClipboard(homeUrl)
+			fmt.Fprintln(os.Stderr, "Copied to clipboard: "+color.BlueString(homeUrl))
 		} else {
 			color.Blue(homeUrl)
 			openBrowser(homeUrl)
@@ -72,14 +76,42 @@ func Open(repoPath string, print bool) {
 	projectPath := strings.TrimPrefix(gitURL.Path, "/")
 	projectPath = strings.TrimSuffix(projectPath, ".git")
 
+	var url string
+	var exists bool
+	var requestType string
 	switch gitURL.Host {
 	case "gitlab.com":
-		openGitLab(branch, projectPath, print)
+		exists, url = getGitLabUrl(branch, projectPath, print)
+		requestType = "merge request"
 	case "github.com":
-		openGitHub(branch, projectPath, print)
+		exists, url = getGitHubUrl(branch, projectPath, print)
+		requestType = "pull request"
 	default:
 		fmt.Fprintln(os.Stderr, "Unknown remote type")
 		os.Exit(1)
+	}
+
+	if !exists {
+		fmt.Fprintf(os.Stderr, "No open %s found for current branch\n", requestType)
+		fmt.Fprintf(os.Stderr, "Create %s at ", requestType)
+		color.Blue(url)
+
+		if copy {
+			copyToClipboard(url)
+			fmt.Fprintln(os.Stderr, "Copied to clipboard.")
+		}
+
+		os.Exit(0)
+	}
+
+	if print {
+		color.Blue(url)
+	} else if copy {
+		copyToClipboard(url)
+		fmt.Fprintln(os.Stderr, "Copied to clipboard: "+color.BlueString(url))
+	} else {
+		fmt.Fprintln(os.Stderr, "Opening "+color.BlueString(url))
+		openBrowser(url)
 	}
 }
 
@@ -109,7 +141,8 @@ func findRepo(path string) (*git.Repository, error) {
 	return nil, err
 }
 
-func openGitLab(branch string, projectPath string, print bool) {
+// Returns merge request URL if it exists for given branch, otherwise returns URL to create new one.
+func getGitLabUrl(branch string, projectPath string, print bool) (exists bool, url string) {
 	gitlabToken := config.Get().GitLabToken
 
 	if gitlabToken == "" {
@@ -120,9 +153,7 @@ func openGitLab(branch string, projectPath string, print bool) {
 	mergeRequest, err := gitlab.FindMergeRequest(projectPath, gitlabToken, branch)
 	if err != nil {
 		if errors.Is(err, gitlab.ErrNotFound) {
-			fmt.Fprintln(os.Stderr, "No open merge request found for current branch")
-			fmt.Fprintln(os.Stderr, "Create pull request at", color.BlueString("https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s", projectPath, branch))
-			os.Exit(0)
+			return false, fmt.Sprintf("https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s", projectPath, branch)
 		} else if errors.Is(err, gitlab.ErrUnauthorized) || errors.Is(err, gitlab.ErrTokenExpired) {
 			fmt.Fprintln(os.Stderr, color.RedString("Unable to get merge requests: %s", err.Error()))
 			fmt.Fprintln(os.Stderr, "Connect GitLab again with `pro auth gitlab`.")
@@ -133,17 +164,11 @@ func openGitLab(branch string, projectPath string, print bool) {
 		}
 	}
 
-	url := mergeRequest.WebUrl
-
-	if print {
-		color.Blue(url)
-	} else {
-		fmt.Fprintln(os.Stderr, "Opening "+color.BlueString(url))
-		openBrowser(url)
-	}
+	return true, mergeRequest.WebUrl
 }
 
-func openGitHub(branch string, projectPath string, print bool) {
+// Returns pull request URL if it exists for given branch, otherwise returns URL to create new one.
+func getGitHubUrl(branch string, projectPath string, print bool) (exists bool, url string) {
 	githubToken := config.Get().GitHubToken
 
 	if githubToken == "" {
@@ -154,9 +179,7 @@ func openGitHub(branch string, projectPath string, print bool) {
 	pullRequest, err := github.FindPullRequest(projectPath, githubToken, branch)
 	if err != nil {
 		if errors.Is(err, github.ErrNotFound) {
-			fmt.Fprintln(os.Stderr, "No open pull request found for current branch")
-			fmt.Fprintln(os.Stderr, "Create pull request at", color.BlueString("https://github.com/%s/pull/new/%s", projectPath, branch))
-			os.Exit(0)
+			return false, fmt.Sprintf("https://github.com/%s/pull/new/%s", projectPath, branch)
 		} else if errors.Is(err, github.ErrUnauthorized) {
 			fmt.Fprintln(os.Stderr, color.RedString("Unable to get pull requests: %s", err.Error()))
 			fmt.Fprintln(os.Stderr, "Token may be expired or deleted. Run `pro auth github` to connect GitHub again.")
@@ -167,14 +190,7 @@ func openGitHub(branch string, projectPath string, print bool) {
 		}
 	}
 
-	url := pullRequest.HtmlURL
-
-	if print {
-		color.Blue(url)
-	} else {
-		fmt.Fprintln(os.Stderr, "Opening "+color.BlueString(url))
-		openBrowser(url)
-	}
+	return true, pullRequest.HtmlURL
 }
 
 func openBrowser(url string) {
@@ -192,7 +208,17 @@ func openBrowser(url string) {
 	}
 
 	if err != nil {
-		fmt.Printf("Unable to open browser: %s\n", err)
+		fmt.Fprintln(os.Stderr, color.RedString("Unable to open browser: %s", err.Error()))
 		os.Exit(1)
 	}
+}
+
+func copyToClipboard(url string) {
+	err := clipboard.Init()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, color.RedString("Unable to copy to clipboard: %s", err.Error()))
+		os.Exit(1)
+	}
+
+	clipboard.Write(clipboard.FmtText, []byte(url))
 }
