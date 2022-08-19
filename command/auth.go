@@ -1,4 +1,4 @@
-package commands
+package command
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 	"syscall"
 
 	"github.com/wowu/pro/config"
-	"github.com/wowu/pro/providers/github"
-	"github.com/wowu/pro/providers/gitlab"
+	"github.com/wowu/pro/provider/github"
+	"github.com/wowu/pro/provider/gitlab"
 
 	"github.com/fatih/color"
 	"golang.org/x/term"

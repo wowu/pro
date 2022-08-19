@@ -14,7 +14,7 @@ type Config struct {
 	GitLabToken string `yaml:"gitlab_token"`
 }
 
-// Read config file and return config object
+// Read config file and return config object.
 func Get() Config {
 	// check if file exists
 	_, err := os.Stat(configfile())

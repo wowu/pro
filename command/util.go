@@ -1,11 +1,11 @@
-package commands
+package command
 
 import (
 	"fmt"
 	"os"
 )
 
-// Print error and exit if error is present
+// Print error and exit if error is present.
 func handleError(err error, reason string) {
 	if err != nil {
 		if reason != "" {

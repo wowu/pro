@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/wowu/pro/commands"
+	"github.com/wowu/pro/command"
 
 	"github.com/urfave/cli/v2"
 )
@@ -44,7 +44,7 @@ func main() {
 						os.Exit(1)
 					}
 
-					commands.Auth(provider)
+					command.Auth(provider)
 
 					return nil
 				},
@@ -54,13 +54,13 @@ func main() {
 				Usage: "Open PR page in browser (default action)",
 				Flags: openCommandFlags,
 				Action: func(c *cli.Context) error {
-					commands.Open(".", c.Bool("print"))
+					command.Open(".", c.Bool("print"))
 					return nil
 				},
 			},
 		},
 		Action: func(c *cli.Context) error {
-			commands.Open(".", c.Bool("print"))
+			command.Open(".", c.Bool("print"))
 
 			return nil
 		},

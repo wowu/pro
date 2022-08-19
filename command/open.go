@@ -1,4 +1,4 @@
-package commands
+package command
 
 import (
 	"errors"
@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/wowu/pro/config"
-	"github.com/wowu/pro/providers/github"
-	"github.com/wowu/pro/providers/gitlab"
+	"github.com/wowu/pro/provider/github"
+	"github.com/wowu/pro/provider/gitlab"
 
 	"github.com/fatih/color"
 	"github.com/go-git/go-git/v5"
@@ -83,7 +83,7 @@ func Open(repoPath string, print bool) {
 	}
 }
 
-// Find git repository in given directory or parent directories
+// Find git repository in given directory or parent directories.
 func findRepo(path string) (*git.Repository, error) {
 	absolutePath, err := filepath.Abs(path)
 	if err != nil {
