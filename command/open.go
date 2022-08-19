@@ -98,7 +98,7 @@ func Open(repoPath string, print bool, copy bool) {
 
 		if copy {
 			copyToClipboard(url)
-			fmt.Fprintln(os.Stderr, "Copied to clipboard.")
+			fmt.Fprintln(os.Stderr, "URL copied to clipboard.")
 		}
 
 		os.Exit(0)
