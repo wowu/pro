@@ -123,3 +123,9 @@ Use `-p | --print` flag to print the Pull Request URL instead of opening it in d
 pro -p
 ```
 
+Use `-c | --copy` flag to copy the Pull Request URL to clipboard instead of opening it in default browser:
+
+```bash
+pro -c
+```
+
