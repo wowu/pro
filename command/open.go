@@ -12,8 +12,8 @@ import (
 	"github.com/wowu/pro/config"
 	"github.com/wowu/pro/provider/github"
 	"github.com/wowu/pro/provider/gitlab"
-	"golang.design/x/clipboard"
 
+	"github.com/atotto/clipboard"
 	"github.com/fatih/color"
 	"github.com/go-git/go-git/v5"
 	giturls "github.com/whilp/git-urls"
@@ -214,11 +214,9 @@ func openBrowser(url string) {
 }
 
 func copyToClipboard(url string) {
-	err := clipboard.Init()
+	err := clipboard.WriteAll(url)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, color.RedString("Unable to copy to clipboard: %s", err.Error()))
 		os.Exit(1)
 	}
-
-	clipboard.Write(clipboard.FmtText, []byte(url))
 }
