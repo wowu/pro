@@ -29,4 +29,4 @@ if [ "$REPLY" = "y" ]; then
   git tag "$1"
 fi
 
-git show
+git --no-pager show
