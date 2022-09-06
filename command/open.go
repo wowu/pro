@@ -117,6 +117,8 @@ func Open(repoPath string, print bool, copy bool) {
 
 // Find git repository in given directory or parent directories.
 func findRepo(path string) (*git.Repository, error) {
+	windowsRootPath := filepath.VolumeName(path) + "\\"
+
 	absolutePath, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
@@ -130,7 +132,7 @@ func findRepo(path string) (*git.Repository, error) {
 
 	if errors.Is(err, git.ErrRepositoryNotExists) {
 		// Base case - we've reached the root of the filesystem
-		if absolutePath == "/" {
+		if absolutePath == "/" || absolutePath == windowsRootPath {
 			return nil, errors.New("no git repository found")
 		}
 
