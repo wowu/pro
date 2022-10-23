@@ -5,54 +5,54 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"strings"
 
+	giturls "github.com/whilp/git-urls"
 	"github.com/wowu/pro/config"
 	"github.com/wowu/pro/provider/github"
 	"github.com/wowu/pro/provider/gitlab"
+	"github.com/wowu/pro/repository"
 
 	"github.com/atotto/clipboard"
 	"github.com/fatih/color"
-	"github.com/go-git/go-git/v5"
-	giturls "github.com/whilp/git-urls"
 )
 
 func Open(repoPath string, print bool, copy bool) {
-	repository, err := findRepo(repoPath)
+	repo, err := repository.FindInParents(repoPath)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, color.RedString("Unable to find git repository in given directory or any of parent directories."))
 		fmt.Fprintln(os.Stderr, "Please make sure you are in the project directory.")
 		os.Exit(1)
 	}
 
-	// check if there is a remote named origin
-	origin, err := repository.Remote("origin")
+	originURL, err := repo.OriginUrl()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, color.RedString("No remote named \"origin\" found."))
-		fmt.Fprintln(os.Stderr, "Please make sure you have a remote named \"origin\".")
-		os.Exit(1)
+		if errors.Is(err, repository.ErrNoRemoteOrigin) {
+			fmt.Fprintln(os.Stderr, color.RedString("No remote named \"origin\" found."))
+			fmt.Fprintln(os.Stderr, "Please make sure you have a remote named \"origin\".")
+			os.Exit(1)
+		} else {
+			fmt.Fprintln(os.Stderr, color.RedString("Unable to get origin URL: %s", err.Error()))
+		}
 	}
-
-	// get current head
-	head, err := repository.Head()
-	handleError(err, "Unable to get repository head")
-
-	if !head.Name().IsBranch() {
-		fmt.Fprintln(os.Stderr, color.RedString("No active branch found."))
-		fmt.Fprintln(os.Stderr, "Switch to a branch and try again.")
-		os.Exit(0)
-	}
-
-	// get current branch name
-	branch := head.Name().Short()
-	fmt.Fprintf(os.Stderr, "Current branch: %s\n", color.GreenString(branch))
-
-	originURL := origin.Config().URLs[0]
 
 	gitURL, err := giturls.Parse(originURL)
 	handleError(err, "Unable to parse origin URL")
+
+	branch, err := repo.CurrentBranchName()
+	if err != nil {
+		if errors.Is(err, repository.ErrNoActiveBranch) {
+			fmt.Fprintln(os.Stderr, color.RedString("No active branch found."))
+			fmt.Fprintln(os.Stderr, "Switch to a branch and try again.")
+			os.Exit(0)
+		} else {
+			fmt.Fprintln(os.Stderr, color.RedString("Unable to get current branch: %s", err.Error()))
+			os.Exit(1)
+		}
+	}
+
+	fmt.Fprintf(os.Stderr, "Current branch: %s\n", color.GreenString(branch))
 
 	if branch == "master" || branch == "main" || branch == "trunk" || branch == "develop" || branch == "dev" {
 		fmt.Fprintln(os.Stderr, "Looks like you are on the main branch. Opening home page.")
@@ -113,34 +113,6 @@ func Open(repoPath string, print bool, copy bool) {
 		fmt.Fprintln(os.Stderr, "Opening "+color.BlueString(url))
 		openBrowser(url)
 	}
-}
-
-// Find git repository in given directory or parent directories.
-func findRepo(path string) (*git.Repository, error) {
-	windowsRootPath := filepath.VolumeName(path) + "\\"
-
-	absolutePath, err := filepath.Abs(path)
-	if err != nil {
-		return nil, err
-	}
-
-	repository, err := git.PlainOpen(absolutePath)
-
-	if err == nil {
-		return repository, nil
-	}
-
-	if errors.Is(err, git.ErrRepositoryNotExists) {
-		// Base case - we've reached the root of the filesystem
-		if absolutePath == "/" || absolutePath == windowsRootPath {
-			return nil, errors.New("no git repository found")
-		}
-
-		// Recurse to parent directory
-		return findRepo(filepath.Dir(absolutePath))
-	}
-
-	return nil, err
 }
 
 // Returns merge request URL if it exists for given branch, otherwise returns URL to create new one.
