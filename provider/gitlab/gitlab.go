@@ -9,7 +9,8 @@ import (
 )
 
 var ErrUnauthorized = errors.New("unauthorized")
-var ErrNotFound = errors.New("not found")
+var ErrProjectNotFound = errors.New("project not found")
+var ErrMergeRequestNotFound = errors.New("merge request not found")
 var ErrTokenExpired = errors.New("token expired")
 
 type ApiResponse struct {
@@ -95,7 +96,7 @@ func FindMergeRequest(projectPath string, token string, branch string) (MergeReq
 			return MergeRequestResponse{}, ErrUnauthorized
 		}
 	case http.StatusNotFound:
-		return MergeRequestResponse{}, ErrNotFound
+		return MergeRequestResponse{}, ErrProjectNotFound
 	case http.StatusOK:
 		var mergeRequests []MergeRequestResponse
 		err = json.Unmarshal(resp.Body, &mergeRequests)
@@ -104,7 +105,7 @@ func FindMergeRequest(projectPath string, token string, branch string) (MergeReq
 		}
 
 		if len(mergeRequests) == 0 {
-			return MergeRequestResponse{}, ErrNotFound
+			return MergeRequestResponse{}, ErrMergeRequestNotFound
 		}
 
 		return mergeRequests[0], nil

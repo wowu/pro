@@ -126,8 +126,12 @@ func getGitLabUrl(branch string, projectPath string, print bool) (exists bool, u
 
 	mergeRequest, err := gitlab.FindMergeRequest(projectPath, gitlabToken, branch)
 	if err != nil {
-		if errors.Is(err, gitlab.ErrNotFound) {
+		if errors.Is(err, gitlab.ErrMergeRequestNotFound) {
 			return false, fmt.Sprintf("https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s", projectPath, branch)
+		} else if errors.Is(err, gitlab.ErrProjectNotFound) {
+			fmt.Fprintln(os.Stderr, color.RedString("Project \"%s\" not found.", projectPath))
+			fmt.Fprintln(os.Stderr, "Maybe it was renamed or deleted? Change remote URL and try again.")
+			os.Exit(1)
 		} else if errors.Is(err, gitlab.ErrUnauthorized) || errors.Is(err, gitlab.ErrTokenExpired) {
 			fmt.Fprintln(os.Stderr, color.RedString("Unable to get merge requests: %s", err.Error()))
 			fmt.Fprintln(os.Stderr, "Connect GitLab again with `pro auth gitlab`.")
