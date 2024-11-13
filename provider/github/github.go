@@ -63,7 +63,7 @@ func User(token string) (UserResponse, error) {
 
 		return user, nil
 	default:
-		return UserResponse{}, errors.New("unknown response code: " + fmt.Sprint(resp.StatusCode))
+		return UserResponse{}, errors.New("unknown response code: " + fmt.Sprint(resp.StatusCode) + " " + string(resp.Body))
 	}
 }
 
@@ -102,6 +102,6 @@ func FindPullRequest(projectPath string, token string, branch string) (PullReque
 
 		return pullRequests[0], nil
 	default:
-		return PullRequestResponse{}, errors.New("unknown response code: " + fmt.Sprint(resp.StatusCode))
+		return PullRequestResponse{}, errors.New("unknown response code: " + fmt.Sprint(resp.StatusCode) + " " + string(resp.Body))
 	}
 }
