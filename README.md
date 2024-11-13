@@ -20,7 +20,7 @@ A single command to open current PR in browser. Supports GitHub and GitLab. Avai
   - [Authorize GitHub / GitLab](#authorize-github--gitlab)
     - [GitHub](#github)
     - [GitLab](#gitlab)
-  - [Open  Pull Request in default browser](#open--pull-request-in-default-browser)
+  - [Open Pull Request in default browser](#open-pull-request-in-default-browser)
 
 ## Demo
 
@@ -65,17 +65,17 @@ Replace `amd64` with `arm64` if you are on ARM.
 go install github.com/wowu/pro@latest
 ```
 
-Go 1.18 is required. `pro` binary will be installed in `$GOPATH/bin` (most likely `~/go/bin/pro`).
+`pro` binary will be installed in `$GOPATH/bin` (most likely `~/go/bin/pro`).
 
 ### Compile from source
 
-1. Install Go 1.18 (`brew install go` or [see offical docs](https://go.dev/doc/install))
+1. Install Go (`brew install go` or [see offical docs](https://go.dev/doc/install))
 2. Clone the repository and build the project:
 
-    ```bash
-    git clone git@github.com:Wowu/pro.git && cd pro
-    go build
-    ```
+   ```bash
+   git clone git@github.com:Wowu/pro.git && cd pro
+   go build
+   ```
 
 ### Precompiled binaries
 
@@ -107,7 +107,7 @@ pro auth gitlab
 
 You will be asked to [generate personal access token](https://gitlab.com/-/profile/personal_access_tokens?name=pro+cli&scopes=read_api) and paste it in the prompt. Token will be stored in `~/.config/pro/config.yml`.
 
-### Open  Pull Request in default browser
+### Open Pull Request in default browser
 
 To open current Pull Request simply type:
 
@@ -128,4 +128,3 @@ Use `-c | --copy` flag to copy the Pull Request URL to clipboard instead of open
 ```bash
 pro -c
 ```
-
