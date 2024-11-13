@@ -1,3 +1,5 @@
+version: 1
+
 release:
   name_template: "pro v{{.Version}}"
 
@@ -28,7 +30,7 @@ builds:
     goarch: [amd64, arm64]
 
 brews:
-  - tap:
+  - repository:
       owner: wowu
       name: homebrew-tap
       token: "{{ .Env.GORELEASER_REPO_TOKEN }}"
@@ -37,6 +39,7 @@ brews:
 
 nfpms:
   - id: packages
+    maintainer: wowu
     file_name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
     license: MIT
     homepage: https://github.com/wowu/pro
@@ -45,13 +48,13 @@ nfpms:
       - deb
       - rpm
 
-scoop:
-  bucket:
-    owner: wowu
-    name: scoop
-    token: "{{ .Env.GORELEASER_REPO_TOKEN }}"
-  description: A single command to quickly open current PR in browser.
-  license: MIT
+scoops:
+  - repository:
+      owner: wowu
+      name: scoop
+      token: "{{ .Env.GORELEASER_REPO_TOKEN }}"
+    description: A single command to quickly open current PR in browser.
+    license: MIT
 
 publishers:
   - name: fury.io
