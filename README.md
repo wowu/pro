@@ -115,7 +115,7 @@ To open current Pull Request simply type:
 pro
 ```
 
-If you're on the main branch (`main`, `master`, `trunk`, etc.) repository homepage will be opened instead. If no PR matching current branch is found, a URL to create new Pull Request will be printed.
+If you're on the main branch (`main`, `master`, `trunk`, etc.) repository homepage will be opened instead. If no PR matching current branch is found but the branch is pushed to remote, "Create Pull Request" page will be opened.
 
 Use `-p | --print` flag to print the Pull Request URL instead of opening it in default browser:
 
