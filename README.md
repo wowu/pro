@@ -105,7 +105,7 @@ Use `auth` command to login:
 pro auth gitlab
 ```
 
-You will be asked to [generate personal access token](https://gitlab.com/-/profile/personal_access_tokens?name=pro+cli&scopes=read_api) and paste it in the prompt. Token will be stored in `~/.config/pro/config.yml`.
+You will be asked to [generate personal access token](https://gitlab.com/-/user_settings/personal_access_tokens?name=pro+cli&scopes=read_api) and paste it in the prompt. Token will be stored in `~/.config/pro/config.yml`.
 
 ### Open Pull Request in default browser
 

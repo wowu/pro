@@ -27,7 +27,7 @@ func Auth(provider string) {
 }
 
 func authgitlab() {
-	fmt.Println("Generate your token at " + color.BlueString("https://gitlab.com/-/profile/personal_access_tokens?name=pro+cli&scopes=read_api"))
+	fmt.Println("Generate your token at " + color.BlueString("https://gitlab.com/-/user_settings/personal_access_tokens?name=pro+cli&scopes=read_api"))
 	fmt.Println()
 	fmt.Println("The only required scope is 'read_api'")
 	color.Yellow("It's recommended to leave \"Expiration date\" blank.")
