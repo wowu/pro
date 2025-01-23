@@ -105,3 +105,34 @@ func FindPullRequest(projectPath string, token string, branch string) (PullReque
 		return PullRequestResponse{}, errors.New("unknown response code: " + fmt.Sprint(resp.StatusCode) + " " + string(resp.Body))
 	}
 }
+
+func GetRemoteBranches(projectPath string, token string) ([]string, error) {
+  url := "https://api.github.com/repos/" + projectPath + "/git/refs/heads"
+
+  resp, err := apiGet(url, token)
+  if err != nil {
+    return nil, err
+  }
+
+  switch resp.StatusCode {
+  case http.StatusUnauthorized:
+    return nil, ErrUnauthorized
+  case http.StatusOK:
+    var branches []struct {
+      Ref string `json:"ref"`
+    }
+    err = json.Unmarshal(resp.Body, &branches)
+    if err != nil {
+      return nil, err
+    }
+
+    var branchNames []string
+    for _, branch := range branches {
+      branchNames = append(branchNames, strings.TrimPrefix(branch.Ref, "refs/heads/"))
+    }
+
+    return branchNames, nil
+  default:
+    return nil, errors.New("unknown response code: " + fmt.Sprint(resp.StatusCode) + " " + string(resp.Body))
+  }
+}

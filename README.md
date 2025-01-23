@@ -73,7 +73,7 @@ go install github.com/wowu/pro@latest
 2. Clone the repository and build the project:
 
    ```bash
-   git clone git@github.com:Wowu/pro.git && cd pro
+   git clone git@github.com:wowu/pro.git && cd pro
    go build
    ```
 
