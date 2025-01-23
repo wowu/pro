@@ -113,3 +113,33 @@ func FindMergeRequest(projectPath string, token string, branch string) (MergeReq
 		return MergeRequestResponse{}, errors.New("unknown response code")
 	}
 }
+
+func GetRemoteBranches(projectPath string, token string) ([]string, error) {
+  url := "https://gitlab.com/api/v4/projects/" + url.QueryEscape(projectPath) + "/repository/branches"
+  resp, err := apiGet(url, token)
+  if err != nil {
+    return nil, err
+  }
+
+  switch resp.StatusCode {
+  case http.StatusUnauthorized:
+    return nil, ErrUnauthorized
+  case http.StatusOK:
+    var branches []struct {
+      Name string `json:"name"`
+    }
+    err = json.Unmarshal(resp.Body, &branches)
+    if err != nil {
+      return nil, err
+    }
+
+    var branchNames []string
+    for _, b := range branches {
+      branchNames = append(branchNames, b.Name)
+    }
+
+    return branchNames, nil
+  default:
+    return nil, errors.New("unknown response code")
+  }
+}
