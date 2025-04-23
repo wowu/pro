@@ -28,7 +28,7 @@ func main() {
 	app := &cli.App{
 		Name:    "pro",
 		Usage:   "Pull Request Opener",
-		Version: "v0.4.0",
+		Version: "v0.4.1",
 		Flags:   openCommandFlags,
 		Commands: []*cli.Command{
 			{
