@@ -77,7 +77,7 @@ func main() {
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() > 0 {
 				fmt.Printf("unknown command: %s\n\n", c.Args().First())
-				cli.ShowAppHelp(c)
+				_ = cli.ShowAppHelp(c)
 				return nil
 			}
 
