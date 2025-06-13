@@ -63,8 +63,24 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:    "list",
+				Aliases: []string{"ls"},
+				Usage:   "Interactive Pull Request browser. Select to open in browser.",
+				Flags:   openCommandFlags,
+				Action: func(c *cli.Context) error {
+					command.List(".", c.Bool("print"), c.Bool("copy"))
+					return nil
+				},
+			},
 		},
 		Action: func(c *cli.Context) error {
+			if c.Args().Len() > 0 {
+				fmt.Printf("unknown command: %s\n\n", c.Args().First())
+				_ = cli.ShowAppHelp(c)
+				return nil
+			}
+
 			command.Open(".", c.Bool("print"), c.Bool("copy"))
 
 			return nil

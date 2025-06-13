@@ -69,6 +69,7 @@ func User(token string) (UserResponse, error) {
 
 type MergeRequestResponse struct {
 	ID           int    `json:"id"`
+	IID          int    `json:"iid"`
 	Title        string `json:"title"`
 	State        string `json:"state"`
 	SourceBranch string `json:"source_branch"`
@@ -115,31 +116,65 @@ func FindMergeRequest(projectPath string, token string, branch string) (MergeReq
 }
 
 func GetRemoteBranches(projectPath string, token string) ([]string, error) {
-  url := "https://gitlab.com/api/v4/projects/" + url.QueryEscape(projectPath) + "/repository/branches"
-  resp, err := apiGet(url, token)
-  if err != nil {
-    return nil, err
-  }
+	url := "https://gitlab.com/api/v4/projects/" + url.QueryEscape(projectPath) + "/repository/branches"
+	resp, err := apiGet(url, token)
+	if err != nil {
+		return nil, err
+	}
 
-  switch resp.StatusCode {
-  case http.StatusUnauthorized:
-    return nil, ErrUnauthorized
-  case http.StatusOK:
-    var branches []struct {
-      Name string `json:"name"`
-    }
-    err = json.Unmarshal(resp.Body, &branches)
-    if err != nil {
-      return nil, err
-    }
+	switch resp.StatusCode {
+	case http.StatusUnauthorized:
+		return nil, ErrUnauthorized
+	case http.StatusOK:
+		var branches []struct {
+			Name string `json:"name"`
+		}
+		err = json.Unmarshal(resp.Body, &branches)
+		if err != nil {
+			return nil, err
+		}
 
-    var branchNames []string
-    for _, b := range branches {
-      branchNames = append(branchNames, b.Name)
-    }
+		var branchNames []string
+		for _, b := range branches {
+			branchNames = append(branchNames, b.Name)
+		}
 
-    return branchNames, nil
-  default:
-    return nil, errors.New("unknown response code")
-  }
+		return branchNames, nil
+	default:
+		return nil, errors.New("unknown response code")
+	}
+}
+
+func ListOpenMergeRequests(projectPath string, token string) ([]MergeRequestResponse, error) {
+	url := "https://gitlab.com/api/v4/projects/" + url.QueryEscape(projectPath) + "/merge_requests?state=opened"
+	resp, err := apiGet(url, token)
+	if err != nil {
+		return nil, err
+	}
+
+	switch resp.StatusCode {
+	case http.StatusUnauthorized:
+		var body map[string]interface{}
+		err = json.Unmarshal(resp.Body, &body)
+		if err != nil {
+			return nil, err
+		}
+
+		if body["error_description"] == "Token is expired. You can either do re-authorization or token refresh." {
+			return nil, ErrTokenExpired
+		} else {
+			return nil, ErrUnauthorized
+		}
+	case http.StatusNotFound:
+		return nil, ErrProjectNotFound
+	case http.StatusOK:
+		var mergeRequests []MergeRequestResponse
+		err = json.Unmarshal(resp.Body, &mergeRequests)
+		if err != nil {
+			return nil, err
+		}
+		return mergeRequests, nil
+	default:
+		return nil, errors.New("unknown response code")
+	}
 }

@@ -118,21 +118,21 @@ func getGitLabUrl(branch string, projectPath string) (exists bool, url string) {
 	mergeRequest, err := gitlab.FindMergeRequest(projectPath, gitlabToken, branch)
 	if err != nil {
 		if errors.Is(err, gitlab.ErrMergeRequestNotFound) {
-      branches, err := gitlab.GetRemoteBranches(projectPath, gitlabToken)
-      if err != nil {
-        fmt.Fprintln(os.Stderr, color.RedString("Unable to get branches: %s", err.Error()))
-        os.Exit(1)
-      }
+			branches, err := gitlab.GetRemoteBranches(projectPath, gitlabToken)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, color.RedString("Unable to get branches: %s", err.Error()))
+				os.Exit(1)
+			}
 
-      // Check if the branch exists in the remote repository
-      for _, b := range branches {
-        if b == branch {
-          return false, fmt.Sprintf("https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s", projectPath, branch)
-        }
-      }
+			// Check if the branch exists in the remote repository
+			for _, b := range branches {
+				if b == branch {
+					return false, fmt.Sprintf("https://gitlab.com/%s/merge_requests/new?merge_request%%5Bsource_branch%%5D=%s", projectPath, branch)
+				}
+			}
 
-      fmt.Fprintln(os.Stderr, color.RedString("Branch \"%s\" not found in the remote repository. Push the branch to create a merge request.", branch))
-      os.Exit(1)
+			fmt.Fprintln(os.Stderr, color.RedString("Branch \"%s\" not found in the remote repository. Push the branch to create a merge request.", branch))
+			os.Exit(1)
 		} else if errors.Is(err, gitlab.ErrProjectNotFound) {
 			fmt.Fprintln(os.Stderr, color.RedString("Project \"%s\" not found.", projectPath))
 			fmt.Fprintln(os.Stderr, "Maybe it was renamed or deleted? Change remote URL and try again.")
@@ -162,21 +162,21 @@ func getGitHubUrl(branch string, projectPath string) (exists bool, url string) {
 	pullRequest, err := github.FindPullRequest(projectPath, githubToken, branch)
 	if err != nil {
 		if errors.Is(err, github.ErrNotFound) {
-      branches, err := github.GetRemoteBranches(projectPath, githubToken)
-      if err != nil {
-        fmt.Fprintln(os.Stderr, color.RedString("Unable to get branches: %s", err.Error()))
-        os.Exit(1)
-      }
+			branches, err := github.GetRemoteBranches(projectPath, githubToken)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, color.RedString("Unable to get branches: %s", err.Error()))
+				os.Exit(1)
+			}
 
-      // Check if the branch exists in the remote repository
-      for _, b := range branches {
-        if b == branch {
-          return false, fmt.Sprintf("https://github.com/%s/pull/new/%s", projectPath, branch)
-        }
-      }
+			// Check if the branch exists in the remote repository
+			for _, b := range branches {
+				if b == branch {
+					return false, fmt.Sprintf("https://github.com/%s/pull/new/%s", projectPath, branch)
+				}
+			}
 
-      fmt.Fprintln(os.Stderr, color.RedString("Branch \"%s\" not found in the remote repository. Push the branch to create a pull request.", branch))
-      os.Exit(1)
+			fmt.Fprintln(os.Stderr, color.RedString("Branch \"%s\" not found in the remote repository. Push the branch to create a pull request.", branch))
+			os.Exit(1)
 		} else if errors.Is(err, github.ErrUnauthorized) {
 			fmt.Fprintln(os.Stderr, color.RedString("Unable to get pull requests: %s", err.Error()))
 			fmt.Fprintln(os.Stderr, "Token may be expired or deleted. Run `pro auth github` to connect GitHub again.")
