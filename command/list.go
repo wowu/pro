@@ -43,6 +43,10 @@ func List(repoPath string, print bool, copy bool) {
 	var prTitles []string
 	var prUrls []string
 
+	// Append repository homepage
+	prTitles = append(prTitles, fmt.Sprintf("Repository homepage (%s)", projectPath))
+	prUrls = append(prUrls, fmt.Sprintf("https://%s/%s", gitURL.Host, projectPath))
+
 	switch gitURL.Host {
 	case "github.com":
 		prs := getGitHubOpenPullRequests(projectPath)
