@@ -1,6 +1,6 @@
 module github.com/wowu/pro
 
-go 1.25.1
+go 1.26.4
 
 require (
 	github.com/atotto/clipboard v0.1.4
