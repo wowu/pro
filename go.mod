@@ -10,7 +10,6 @@ require (
 	github.com/ktr0731/go-fuzzyfinder v0.9.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/urfave/cli/v2 v2.27.7
-	github.com/whilp/git-urls v1.0.0
 	golang.org/x/term v0.44.0
 	gopkg.in/yaml.v2 v2.4.0
 )

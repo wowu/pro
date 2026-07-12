@@ -8,8 +8,8 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/ktr0731/go-fuzzyfinder"
-	giturls "github.com/whilp/git-urls"
 	"github.com/wowu/pro/config"
+	"github.com/wowu/pro/giturl"
 	"github.com/wowu/pro/provider/github"
 	"github.com/wowu/pro/provider/gitlab"
 	"github.com/wowu/pro/repository"
@@ -34,7 +34,7 @@ func List(repoPath string, print bool, copy bool) {
 		}
 	}
 
-	gitURL, err := giturls.Parse(originURL)
+	gitURL, err := giturl.Parse(originURL)
 	handleError(err, "Unable to parse origin URL")
 
 	projectPath := strings.TrimPrefix(gitURL.Path, "/")
