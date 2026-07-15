@@ -57,7 +57,9 @@ func makeRepository(workingDirectory string) (Repository, error) {
 		return Repository{}, err
 	}
 
-	// Get git directory
+	// Get the resolved git directory for this working tree. For a linked
+	// worktree this is <common>/.git/worktrees/<id>; otherwise it's the
+	// repository's .git directory.
 	storage, ok := goGitRepository.Storer.(*filesystem.Storage)
 	if !ok {
 		return Repository{}, errors.New("storage is not filesystem")
@@ -68,25 +70,49 @@ func makeRepository(workingDirectory string) (Repository, error) {
 	}
 	gitDirectory := filesystem.Root()
 
-	// check if gitDirectory includes .git/worktrees in path
-	// if so, we are in an external worktree
-	if strings.Contains(gitDirectory, ".git/worktrees") {
-		worktreeGitDirectory := gitDirectory
-		// go 2 directories up to get the actual git directory
-		gitDirectory = filepath.Dir(filepath.Dir(gitDirectory))
+	// The per-worktree git directory is where this working tree's HEAD lives.
+	worktreeGitDirectory := gitDirectory
 
-		return Repository{
-			workingDirectory:     workingDirectory,
-			gitDirectory:         gitDirectory,
-			worktreeGitDirectory: worktreeGitDirectory,
-		}, nil
-	} else {
-		return Repository{
-			workingDirectory:     workingDirectory,
-			gitDirectory:         gitDirectory,
-			worktreeGitDirectory: gitDirectory,
-		}, nil
+	// If a "commondir" file is present, we are inside a linked worktree and it
+	// points to the shared git directory holding config and remotes.
+	commonDir, err := readWorktreeCommonDir(gitDirectory)
+	if err != nil {
+		return Repository{}, err
 	}
+	if commonDir != "" {
+		gitDirectory = commonDir
+	}
+
+	return Repository{
+		workingDirectory:     workingDirectory,
+		gitDirectory:         gitDirectory,
+		worktreeGitDirectory: worktreeGitDirectory,
+	}, nil
+}
+
+// readWorktreeCommonDir returns the resolved common (shared) git directory when
+// gitDir belongs to a linked worktree, or "" when it does not. Presence of a
+// "commondir" file in gitDir is git's own signal that this is a linked worktree.
+func readWorktreeCommonDir(gitDir string) (string, error) {
+	contents, err := os.ReadFile(filepath.Join(gitDir, "commondir"))
+	if errors.Is(err, os.ErrNotExist) {
+		return "", nil
+	}
+	if err != nil {
+		return "", err
+	}
+
+	commonDir := strings.TrimSpace(string(contents))
+	if commonDir == "" {
+		return "", nil
+	}
+
+	// commondir may be absolute or relative to the worktree git directory.
+	if !filepath.IsAbs(commonDir) {
+		commonDir = filepath.Join(gitDir, commonDir)
+	}
+
+	return filepath.Clean(commonDir), nil
 }
 
 func (repo *Repository) CurrentBranchName() (string, error) {
