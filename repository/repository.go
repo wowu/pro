@@ -26,22 +26,18 @@ func FindInParents(path string) (Repository, error) {
 }
 
 func (repo *Repository) CurrentBranchName() (string, error) {
-	head, err := repo.goGitRepository.Head()
+	// Read HEAD without resolving it, only the branch name is needed
+	head, err := repo.goGitRepository.Reference(plumbing.HEAD, false)
 	if err != nil {
-		// HEAD points at a branch without commits yet
-		if errors.Is(err, plumbing.ErrReferenceNotFound) {
-			return "", ErrNoActiveBranch
-		}
-
 		return "", err
 	}
 
-	// HEAD is detached, so it doesn't point at a branch
-	if !head.Name().IsBranch() {
+	// HEAD holds a hash instead of pointing at a branch, so it is detached
+	if head.Type() != plumbing.SymbolicReference || !head.Target().IsBranch() {
 		return "", ErrNoActiveBranch
 	}
 
-	return head.Name().Short(), nil
+	return head.Target().Short(), nil
 }
 
 func (repo *Repository) OriginUrl() (string, error) {
