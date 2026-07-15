@@ -18,8 +18,12 @@ import (
 func List(repoPath string, print bool, copy bool) {
 	repo, err := repository.FindInParents(repoPath)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, color.RedString("Unable to find git repository in given directory or any of parent directories."))
-		fmt.Fprintln(os.Stderr, "Please make sure you are in the project directory.")
+		if errors.Is(err, repository.ErrNoRepository) {
+			fmt.Fprintln(os.Stderr, color.RedString("Unable to find git repository in given directory or any of parent directories."))
+			fmt.Fprintln(os.Stderr, "Please make sure you are in the project directory.")
+		} else {
+			fmt.Fprintln(os.Stderr, color.RedString("Unable to open git repository: %s", err.Error()))
+		}
 		os.Exit(1)
 	}
 
@@ -28,10 +32,10 @@ func List(repoPath string, print bool, copy bool) {
 		if errors.Is(err, repository.ErrNoRemoteOrigin) {
 			fmt.Fprintln(os.Stderr, color.RedString("No remote named \"origin\" found."))
 			fmt.Fprintln(os.Stderr, "Please make sure you have a remote named \"origin\".")
-			os.Exit(1)
 		} else {
 			fmt.Fprintln(os.Stderr, color.RedString("Unable to get origin URL: %s", err.Error()))
 		}
+		os.Exit(1)
 	}
 
 	gitURL, err := giturl.Parse(originURL)

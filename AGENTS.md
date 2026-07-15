@@ -24,10 +24,9 @@ The flow is: `pro.go` (CLI wiring) → `command/` (orchestration + user-facing o
   - `list.go` — interactive PR/MR picker using `ktr0731/go-fuzzyfinder`.
   - `auth.go` — prompts for and saves a personal access token.
 
-- **`repository/`** — wraps `go-git` to find the repo and read the origin URL. Two things are done manually rather than through go-git:
-  - **Worktree support**: `CurrentBranchName` reads and parses the `.git/HEAD` file directly because go-git does not resolve branches correctly inside external worktrees. `makeRepository` detects the `.git/worktrees` path and tracks both the worktree git dir and the real git dir separately.
-  - **Parent traversal**: `FindInParents` recurses up the directory tree until it finds a git repo or hits the filesystem root.
-  - Typed errors live in `errors.go` (`ErrNoRemoteOrigin`, `ErrNoActiveBranch`) and are matched with `errors.Is` in `command/`.
+- **`repository/`** — wraps `go-git` to find the repo, read the current branch, and read the origin URL. `FindInParents` opens the repo with `PlainOpenWithOptions{DetectDotGit: true}`, which walks up parent directories itself, so no manual traversal is needed. Linked worktrees need no special handling — go-git resolves both HEAD and the shared config from inside a worktree.
+  - Typed errors live in `errors.go` (`ErrNoRepository`, `ErrNoRemoteOrigin`, `ErrNoActiveBranch`) and are matched with `errors.Is` in `command/`. A detached HEAD or a branch without commits yields `ErrNoActiveBranch`.
+  - **go-git is pinned to a v6 alpha on purpose.** v5 cannot open any repository whose config sets the `worktreeConfig` extension (git enables it automatically for per-worktree config): v5's `extensionsValidForV0` allow-list keys are camelCase while lookups are lowercased, so `worktreeconfig` misses and `Open` rejects the repo. v5.19.1 is the last v5, and `verifyExtensions` is unconditional, so v6 is the only fix. Don't downgrade to v5.
 
 - **`provider/github/` and `provider/gitlab/`** — one file each, self-contained REST clients built on `net/http` (no SDK). Each finds the PR/MR for a branch and lists remote branches, handles pagination, and returns typed sentinel errors (e.g. `ErrNotFound`/`ErrUnauthorized`, `ErrMergeRequestNotFound`/`ErrProjectNotFound`/`ErrTokenExpired`). The two providers do not share an interface — `command/` switches on host and calls each directly.
 
